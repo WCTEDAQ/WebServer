@@ -168,7 +168,8 @@ async function makejsrootplot(){
 			//console.log("data was '",data,"'");
 			//console.log("draw_options was '",drawoptions,"'");
 			let obj = parse(data);
-			//console.log("obj is ",obj);
+			//console.log("obj is: ");
+			//console.log(obj);
 			
 			// remove any existing plots - with calling this, plots will overlay (kinda like 'same')
 			cleanup("jsroot_div");

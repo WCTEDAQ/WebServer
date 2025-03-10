@@ -82,6 +82,7 @@ select.addEventListener('change', function() {  //actions to take on change of s
     var command = "select * from "+ selectedOption.value;
 
     if(selectedOption.value=="monitoring" || selectedOption.value=="logging" || selectedOption.value=="alarms" || selectedOption.value=="configurations") command +=" order by time desc";
+    if(selectedOption.value=="run_info" ) command +=" order by start_time desc";
     command+=" limit " + limit.value;
 
     GetPSQLTable(command, "root","daq",true).then(function(result){
