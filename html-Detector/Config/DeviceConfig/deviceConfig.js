@@ -18,6 +18,7 @@ function Init(){
         //console.log("Initialising page");
         GetDeviceConfigs();
         document.getElementById("addDeviceConfigBtn").addEventListener("click", addDeviceConfig);
+        document.getElementById("file-input").addEventListener("change", handleFileSelection);
 }
 
 function GetDeviceConfigs() {
@@ -56,4 +57,32 @@ function addDeviceConfig() {
     }).catch(function (error) {
         console.error("Error adding device configuration:", error);
     });
+}
+
+function handleFileSelection(event) {
+
+  const data = document.getElementById("data");
+  //data.textContent = ""; // Clear previous file content
+  const file = event.target.files[0];
+  
+  // Validate file existence and type
+  if(!file) {
+    return;
+  }
+
+  if (!file.type.startsWith("text") && file.type.search("json")<0) {
+    data.textContent = "Unsupported file type. Please select a text file.";
+    return;
+  }
+
+  // Read the file
+  const reader = new FileReader();
+  reader.onload = () => {
+    data.textContent = reader.result;
+  };
+  reader.onerror = () => {
+    data.textContent = "Error reading the file. Please try again.";
+  };
+  reader.readAsText(file);
+  
 }

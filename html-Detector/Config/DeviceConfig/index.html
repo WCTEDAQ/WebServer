@@ -18,7 +18,7 @@
     <h1 align="center">New Device Configurations</h1>
 
     <!-- Form to add a new device configuration -->
-    <form id="deviceConfigForm">
+    <form id="deviceConfigForm" method="post" enctype="multipart/form-data">
         <label for="device">Device:</label>
         <input type="text" id="device" name="device" size="40" style="margin: 10px;" required><br><br>
 
@@ -30,6 +30,9 @@
 
         <label for="data">Data (JSON format):</label><br>
         <textarea id="data" name="data" style="resize:both; width:80%; margin:10px;" required></textarea><br><br>
+        
+        <label for="data">Data File (JSON format):</label><br>
+        <input type="file" id="file-input" name="filename">
         
         <script type="text/javascript">
             const datainput = document.querySelector("#data");
