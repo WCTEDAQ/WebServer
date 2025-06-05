@@ -1,0 +1,280 @@
+#mpmt-svg-symbols{
+    display: none;
+}
+table.mpmttable {
+border: 1px solid #3F51B5;
+width: 100%;
+text-align: left;
+border-collapse: collapse;
+}
+table.mpmttable td, table.mpmttable th {
+border: 1px solid #AAAAAA;
+padding: 3px 2px;
+}
+table.mpmttable tbody td {
+font-size: 14px;
+}
+
+table.mpmttable tbody tr.redback {
+background-color: #F2CCCC;
+}
+table.mpmttable tbody tr.grayback {
+background-color: #d4d4d4;
+}
+
+table.mpmttable tbody tr.staleback {
+background-color: #ffb8e5;
+}
+
+
+table.mpmttable thead {
+background: #3F51B5;
+border-bottom: 2px solid #444444;
+}
+table.mpmttable thead th {
+font-size: 15px;
+font-weight: bold;
+color: #FFFFFF;
+border-left: 2px solid #D0E4F5;
+white-space: nowrap; 
+}
+table.mpmttable thead th:first-child {
+border-left: none;
+}
+
+table.mpmttable tfoot {
+font-size: 14px;
+font-weight: bold;
+color: #FFFFFF;
+background: #B6C1FF;
+border-top: 2px solid #444444;
+}
+table.mpmttable tfoot td {
+font-size: 14px;
+}
+table.mpmttable tfoot .links {
+text-align: right;
+}
+table.mpmttable tfoot .links a{
+display: inline-block;
+background: #3F51B5;
+color: #FFFFFF;
+padding: 2px 8px;
+border-radius: 5px;
+}
+
+table.mpmttable tbody td { 
+white-space: nowrap; 
+}
+
+table.mpmttable tbody td.wrap { 
+word-wrap: break-word;
+overflow-wrap: break-word;
+white-space: normal; 
+}
+
+table.mpmttable th:last-child { 
+width: 100%; 
+}
+
+span.mpmtred {
+color: red;
+}
+
+span.mpmtgreen {
+color: darkgreen;
+}
+
+span.mpmtgray {
+color: #222222;
+}
+
+span.mpmtblack {
+color: #000000;
+}
+
+div.pmtfont {
+font-size: x-large;
+white-space: nowrap;
+}
+
+input.mpmtgroupcheck {
+height: 1.5em;
+width: 1.5em;
+}
+
+.tooltip-no-underline {
+border-bottom: none;
+}
+
+.tooltip {
+position: relative;
+display: inline-block;
+border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+visibility: hidden;
+width: 120px;
+background-color: #555;
+color: #fff;
+text-align: center;
+border-radius: 6px;
+padding: 5px 0;
+position: absolute;
+z-index: 1;
+bottom: 125%;
+left: 50%;
+margin-left: -60px;
+opacity: 0;
+transition: opacity 0.3s;
+}
+
+.tooltip .tooltiptext::after {
+content: "";
+position: absolute;
+top: 100%;
+left: 50%;
+margin-left: -5px;
+border-width: 5px;
+border-style: solid;
+border-color: #555 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+visibility: visible;
+opacity: 1;
+}
+
+.toast {
+position: fixed;
+top: 25px;
+right: 25px;
+max-width: 300px;
+background: #fff;
+padding: 0.5rem;
+border-radius: 4px;
+box-shadow: -1px 1px 10px
+    rgba(0, 0, 0, 0.3);
+z-index: 1023;
+animation: slideInRight 0.3s
+        ease-in-out forwards,
+    fadeOut 0.5s ease-in-out
+        forwards 2s;
+transform: translateX(110%);
+}
+
+.toast.closing {
+animation: slideOutRight 0.5s
+    ease-in-out forwards;
+}
+
+.toast-progress {
+position: absolute;
+display: block;
+bottom: 0;
+left: 0;
+height: 4px;
+width: 100%;
+background: #b7b7b7;
+animation: toastProgress 1.5s
+    ease-in-out forwards;
+}
+
+.toast-content-wrapper {
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.toast-icon {
+padding: 0.35rem 0.5rem;
+font-size: 1.5rem;
+}
+
+.toast-message {
+flex: 1;
+font-size: 0.9rem;
+color: #000000;
+padding: 0.5rem;
+}
+
+.toast.toast-success {
+background: #95eab8;
+}
+
+.toast.toast-success .toast-progress {
+background-color: #2ecc71;
+}
+
+.toast.toast-danger {
+background: #efaca5;
+}
+
+.toast.toast-danger .toast-progress {
+background-color: #e74c3c;
+}
+
+.toast.toast-info {
+background: #bddaed;
+}
+
+.toast.toast-info .toast-progress {
+background-color: #3498db;
+}
+
+.toast.toast-warning {
+background: #ead994;
+}
+
+.toast.toast-warning .toast-progress {
+background-color: #f1c40f;
+}
+
+@keyframes slideInRight {
+0% {
+    transform: translateX(110%);
+}
+
+75% {
+    transform: translateX(-10%);
+}
+
+100% {
+    transform: translateX(0%);
+}
+}
+
+@keyframes slideOutRight {
+0% {
+    transform: translateX(0%);
+}
+
+25% {
+    transform: translateX(-10%);
+}
+
+100% {
+    transform: translateX(110%);
+}
+}
+
+@keyframes fadeOut {
+0% {
+    opacity: 1;
+}
+
+100% {
+    opacity: 0;
+}
+}
+
+@keyframes toastProgress {
+0% {
+    width: 100%;
+}
+
+100% {
+    width: 0%;
+}
+}

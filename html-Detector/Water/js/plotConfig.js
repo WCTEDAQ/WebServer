@@ -117,7 +117,7 @@ export function setDefaultPlotConfigs (rangeSelectorOption, graphDivs = null) {
         {
             graphDiv: document.getElementById("graph_1"), // The div element for the first plot
             keys: ['PT1_Pressure', 'PT2_Pressure', 'FT1_Flow'], // List of keys related to the plot
-            y2keys: ['FT1_Flow'],
+            y2keys: ['PT2_Pressure', 'FT1_Flow'],
             selectedRange: 60 * 60 * 1000,
             activeRangeSelectorIndex: 1,
             data: [], // Initially an empty array for data
@@ -135,15 +135,15 @@ export function setDefaultPlotConfigs (rangeSelectorOption, graphDivs = null) {
                     rangeselector: rangeSelectorOption,
                 },
                 yaxis: {
-                    title: "Pressure [bar]",
-                    range: [0, 7]
+                    title: "PT-1 Pressure [bar]",
+                    range: [4.5, 4.9]//[4.9, 5.01] // 5.05, 5.15 
                 },
                 //remove this if we don't have a second y axis 
                 yaxis2: {
-                    title: "Flow [t/hr]", // Use the title from y2_plot1
+                    title: "PT-2 [bar] & Flow [t/hr]", // Use the title from y2_plot1
                     overlaying: 'y', // Overlay on the primary y-axis
                     side: 'right', // Position the y2 axis on the right side
-                    range: [2, 2.5] // Set the range from y2_plot1
+                    range: [0.3, 2.8] // 0.95, 2.51 Set the range from y2_plot1
                 }
             }
         },
@@ -169,13 +169,13 @@ export function setDefaultPlotConfigs (rangeSelectorOption, graphDivs = null) {
                 },
                 yaxis: {
                     title: "Detector Level [m]",
-                    range: [3.28, 3.31]
+                    range: [0, 3.315] //[3.296, 3.33] // 3.305
                 },
                 yaxis2: {
                     title: "Detector Level, PT-5 [m]", // Use the title from y2_plot1
                     overlaying: 'y', // Overlay on the primary y-axis
                     side: 'right', // Position the y2 axis on the right side
-                    range: [3.2, 3.3] // Set the range from y2_plot1
+                    range: [0, 3.18] //[3.08, 3.18] // 3.1 Set the range from y2_plot1
                 }
             }
         },
@@ -201,14 +201,14 @@ export function setDefaultPlotConfigs (rangeSelectorOption, graphDivs = null) {
                 },
                 yaxis: {
                     title: "QC* Water Quality [μS/cm] & Salinity",
-                    range: [0, 0.4]
+                    range: [0, 10.2] // 0.2
                 },
                 //remove this if we don't have a second y axis 
                 yaxis2: {
                     title: "UT-1 Water Quality & TDS [a.u.]", // Use the title from y2_plot1
                     overlaying: 'y', // Overlay on the primary y-axis
                     side: 'right', // Position the y2 axis on the right side
-                    range: [0, 80] //[60, 220] // [2, 6.8] // Set the range from y2_plot1
+                    range: [100, 300] //[60, 220] // [2, 6.8] // Set the range from y2_plot1
                 }
             }
         },
@@ -233,7 +233,7 @@ export function setDefaultPlotConfigs (rangeSelectorOption, graphDivs = null) {
                 },
                 yaxis: {
                     title: "Water temp [°C]",
-                    range: [12.7, 20]
+                    range: [10.5, 16] // 14
                 },
             }
         },
@@ -259,7 +259,7 @@ export function setDefaultPlotConfigs (rangeSelectorOption, graphDivs = null) {
                 },
                 yaxis: {
                     title: "Retention Tank PT3 [m]",
-                    range: [0.3, 0.7]
+                    range: [0.1, 2]
                 },
                 //remove this if we don't have a second y axis 
                 yaxis2: {

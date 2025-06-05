@@ -13,7 +13,39 @@
 <script src='../js/mpmtcommon.js'></script>
 <script>
 
-/*
+const mpmt_statuses = [
+{'cid':1, 'status': 2},{'cid':3, 'status': 2},{'cid':6, 'status': 2},{'cid':7, 'status': 2},
+{'cid':8, 'status': 2},{'cid':10, 'status': 2},{'cid':11, 'status': 2},
+{'cid':12, 'status': 2},{'cid':13, 'status': 1},{'cid':14, 'status': 2},{'cid':15, 'status': 2},
+{'cid':16, 'status': 2},{'cid':17, 'status': 2},{'cid':18, 'status': 2},{'cid':19, 'status': 2},
+{'cid':20, 'status': 2},{'cid':21, 'status': 2},{'cid':22, 'status': 2},{'cid':23, 'status': 2},
+{'cid':24, 'status': 2},{'cid':25, 'status': 2},{'cid':26, 'status': 2},{'cid':27, 'status': 2},
+{'cid':28, 'status': 2},{'cid':29, 'status': 2},{'cid':30, 'status': 2},{'cid':31, 'status': 2},
+{'cid':32, 'status': 2},{'cid':33, 'status': 2},{'cid':34, 'status': 2},{'cid':35, 'status': 2},
+{'cid':36, 'status': 2},{'cid':38, 'status': 2},{'cid':40, 'status': 2},
+{'cid':41, 'status': 2},{'cid':42, 'status': 2},{'cid':43, 'status': 2},{'cid':44, 'status': 2},
+{'cid':45, 'status': 2},{'cid':46, 'status': 2},{'cid':47, 'status': 2},{'cid':48, 'status': 2},
+{'cid':52, 'status': 2},{'cid':71, 'status': 2},{'cid':73, 'status': 2},
+{'cid':74, 'status': 2},{'cid':75, 'status': 2},{'cid':76, 'status': 2},{'cid':77, 'status': 2},
+{'cid':78, 'status': 2},{'cid':79, 'status': 2},{'cid':80, 'status': 2},{'cid':82, 'status': 2},
+{'cid':83, 'status': 2},{'cid':84, 'status': 2},{'cid':85, 'status': 2},{'cid':86, 'status': 2},
+{'cid':87, 'status': 2},{'cid':89, 'status': 2},{'cid':91, 'status': 2},{'cid':92, 'status': 2},
+{'cid':93, 'status': 2},{'cid':94, 'status': 2},{'cid':96, 'status': 2},
+{'cid':97, 'status': 2},{'cid':98, 'status': 2},{'cid':99, 'status': 2},{'cid':100, 'status': 2},
+{'cid':101, 'status': 2},{'cid':102, 'status': 2},{'cid':103, 'status': 2},{'cid':104, 'status': 2},
+{'cid':105, 'status': 2},{'cid':106, 'status': 2},{'cid':107, 'status': 2},{'cid':108, 'status': 2},
+{'cid':109, 'status': 2},{'cid':111, 'status': 2},{'cid':112, 'status': 2},{'cid':113, 'status': 2},
+{'cid':114, 'status': 2},{'cid':115, 'status': 2},{'cid':117, 'status': 2},{'cid':118, 'status': 2},
+{'cid':130, 'status': 2},{'cid':131, 'status': 2},{'cid':132, 'status': 2},
+
+{'cid': 2, 'status': 5},{'cid': 81, 'status': 5},{'cid': 110, 'status': 5},{'cid': 50, 'status': 5},
+{'cid': 119, 'status': 5},
+
+{'cid': 9, 'status': 4},{'cid': 39, 'status': 4},{'cid': 51, 'status': 4},{'cid': 95, 'status': 4},
+  ];
+  
+  
+/* 
  Statuses: 0 - unknown - blue rgb(2, 119, 189)
     1 - ok, no HV - greenyellow rgb(175, 180, 43)
     2 - ok, HV on - green rgb(46, 125, 50)
@@ -21,6 +53,16 @@
     4 - major problems red rgb(238, 0, 7)
     5 - stale info purple rgb(194, 24, 91)
 */
+
+const legend = [
+        {"n": "mPMT, unknown state", "c": id_and_status_to_colors("mPMT",0)},
+        {"n": "mPMT, OK", "c": id_and_status_to_colors("mPMT",2)},
+        {"n": "mPMT, OK, but excluded", "c": id_and_status_to_colors("mPMT",1)},
+        {"n": "mPMT, alive, clock problems", "c": id_and_status_to_colors("mPMT",4)},
+        {"n": "mPMT, dead", "c": id_and_status_to_colors("mPMT",5)},
+        {"n": "Far detector", "c": id_and_status_to_colors("FD",0)},
+        {"n": "Empty slot", "c": id_and_status_to_colors("Empty",0)},
+    ];
 
 function id_and_status_to_colors(n,s) {
     if (n.toUpperCase().startsWith("MPMT")) {
@@ -72,8 +114,8 @@ function do_plot(status_table,handler) {
         showticklabels: false,
     },
 
-    width: 1600,
-    height: 1400,
+    width: 1400,
+    height: 1200,
     showlegend: false,
     hovermode: 'closest',
     layer: 'below',
@@ -101,18 +143,6 @@ function do_plot(status_table,handler) {
                 });
             }
         }
-
-    const legend = [
-        {"n": "mPMT, unknown state", "c": id_and_status_to_colors("mPMT",0)},
-        {"n": "mPMT, ok, no HV", "c": id_and_status_to_colors("mPMT",1)},
-        {"n": "mPMT, ok, HV on", "c": id_and_status_to_colors("mPMT",2)},
-        {"n": "mPMT, minor problem", "c": id_and_status_to_colors("mPMT",3)},
-        {"n": "mPMT, major problem", "c": id_and_status_to_colors("mPMT",4)},
-        {"n": "mPMT, stale information", "c": id_and_status_to_colors("mPMT",5)},
-        {"n": "mPMT, firmware done, just info", "c": id_and_status_to_colors("mPMT",9)},
-        {"n": "Far detector", "c": id_and_status_to_colors("FD",0)},
-        {"n": "Empty slot", "c": id_and_status_to_colors("Empty",0)},
-    ];
 
     var yy = 10.0, xx = 12.0, l_x = [], l_y = [], l_t = [];
 
@@ -208,84 +238,7 @@ function handle_click(mpmt) {
 
 }
 
-
-// use like: [{'cid':9, 'status': 1},{'cid':26, 'status': 2},{'cid':119, 'status': 3},{'cid':117, 'status': 4},{'cid':118, 'status': 5}]
-do_plot([
-    {'cid':45, 'status': 9},
-    {'cid':7, 'status': 9},
-    {'cid':92, 'status': 9},
-    {'cid':107, 'status': 9},
-    {'cid':26, 'status': 9},
-    {'cid':118, 'status': 9},
-    {'cid':13, 'status': 9},
-    {'cid':42, 'status': 9},
-    {'cid':21, 'status': 9},
-    {'cid':34, 'status': 9},
-    {'cid':99, 'status': 9},
-    {'cid':12, 'status': 9},
-    {'cid':40, 'status': 9},
-    {'cid':85, 'status': 9},
-    {'cid':46, 'status': 9},
-    {'cid':52, 'status': 9},
-    {'cid':15, 'status': 9},
-    {'cid':14, 'status': 9},
-    {'cid':110, 'status': 9},
-    {'cid':94, 'status': 9},
-    {'cid':103, 'status': 9},
-    {'cid':77, 'status': 9},
-    {'cid':93, 'status': 9},
-    {'cid':73, 'status': 9},
-    {'cid':8, 'status': 9},
-    {'cid':36, 'status': 9},
-    {'cid':104, 'status': 9},
-    {'cid':32, 'status': 9},
-    {'cid':105, 'status': 9},
-    {'cid':71, 'status': 9},
-    {'cid':41, 'status': 9},
-    {'cid':3, 'status': 9},
-    {'cid':6, 'status': 9},
-    {'cid':9, 'status': 9},
-    {'cid':17, 'status': 9},
-    {'cid':20, 'status': 9},
-    {'cid':23, 'status': 9},
-    {'cid':28, 'status': 9},
-    {'cid':29, 'status': 9},
-    {'cid':31, 'status': 9},
-    {'cid':130, 'status': 9},
-    {'cid':131, 'status': 9},
-    {'cid':132, 'status': 9},
-    {'cid':33, 'status': 9},
-    {'cid':35, 'status': 9},
-    {'cid':38, 'status': 9},
-    {'cid':39, 'status': 9},
-    {'cid':43, 'status': 9},
-    {'cid':44, 'status': 9},
-    {'cid':47, 'status': 9},
-    {'cid':76, 'status': 9},
-    {'cid':78, 'status': 9},
-    {'cid':79, 'status': 9},
-    {'cid':82, 'status': 9},
-    {'cid':83, 'status': 9},
-    {'cid':84, 'status': 9},
-    //{'cid':87, 'status': 9}, has giant SD problem
-    {'cid':89, 'status': 9},
-    {'cid':95, 'status': 9},
-    {'cid':96, 'status': 9},
-    {'cid':97, 'status': 9},
-    {'cid':98, 'status': 9},
-    {'cid':108, 'status': 9},
-    {'cid':111, 'status': 9},
-    {'cid':113, 'status': 9},
-    {'cid':115, 'status': 9},
-    {'cid':117, 'status': 9},
-    {'cid':119, 'status': 9},
-    {'cid':10, 'status': 9},
-    {'cid':16, 'status': 9},
-    {'cid':30, 'status': 9},
-    {'cid':50, 'status': 9},
-    {'cid':51, 'status': 9},
-    {'cid':80, 'status': 9},
-],handle_click);
+do_plot(mpmt_statuses,handle_click);
 
 </script>
 

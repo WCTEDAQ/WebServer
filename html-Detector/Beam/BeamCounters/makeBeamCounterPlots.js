@@ -9,6 +9,11 @@ var selectorOptions = { //plot options definitions
       count: 1,
       label: '1min'
    }, {
+      step: 'minute',
+      stepmode: 'backward',
+      count: 10,
+      label: '10min'
+   }, {
       step: 'hour',
       stepmode: 'backward',
       count: 1,
@@ -44,36 +49,18 @@ var selectorOptions = { //plot options definitions
 };
 
 
-var deviceName = "beam-hv";
-
-
-
-
-
-
-
-// othervoltages = plot_together( hvdf, 
-//       ['HC-0-VMon', 'HC-1-VMon', 'HC2-VMon', 'PbGlass-VMon',
-//       'MuonTag-R-VMon', 'MuonTag-L-VMon','WMS-source-VMon',
-//       'WMS-reci-VMon'],
-//       'Time','Voltage (V)',args.maxrecord)
-// othercurrents = plot_together( hvdf, 
-//       ['HC-0-IMon', 'HC-1-IMon', 'HC2-IMon', 'PbGlass-IMon',
-//       'MuonTag-R-IMon', 'MuonTag-L-IMon','WMS-source-IMon',
-//       'WMS-reci-IMon'],
-//        'Time','Current (uA)',args.maxrecord)
+var deviceName = "BeamCounters";
 
 //to define a new plot for the same device add it to the vector 
-
 let plots = [
-   {      
+   {
       graphDiv: document.getElementById("graph_1"), // The div element for the first plot
-      keys: ['ACT0-L-VMon','ACT0-R-VMon','ACT1-L-VMon','ACT1-R-VMon','ACT2-L-VMon','ACT2-R-VMon','ACT3-L-VMon','ACT3-R-VMon','ACT4-L-VMon','ACT4-R-VMon','ACT5-L-VMon','ACT5-R-VMon'], // List of keys related to the plot
+      keys: ['TDCT00','XTRIG','LASER','T3'], // List of keys related to the plot
       selectedRange: 60 * 60 * 1000,
       data: [], // Initially an empty array for data
       layout: {
          title: {
-            text: "ACT Voltages",
+            text: "Primary Trigger, External Trigger and Laser",
             font: { size: 16 },
             yanchor: 'top',
             xanchor: 'center',
@@ -85,19 +72,20 @@ let plots = [
             rangeselector: selectorOptions
          },
          yaxis: {
-            title: "Voltage [V]",
-            // range: [0, 5]
+            title: "Counts",
+            range: [0, 7],
+            type: 'log'          
          }
       }
    },
-   {      
+   {
       graphDiv: document.getElementById("graph_2"), // The div element for the first plot
-      keys: ['ACT0-L-IMon','ACT0-R-IMon','ACT1-L-IMon','ACT1-R-IMon','ACT2-L-IMon','ACT2-R-IMon','ACT3-L-IMon','ACT3-R-IMon','ACT4-L-IMon','ACT4-R-IMon','ACT5-L-IMon','ACT5-R-IMon'], // List of keys related to the plot
+      keys: ['LE psV','LE TOF','LE e','LE mu'], // List of keys related to the plot
       selectedRange: 60 * 60 * 1000,
       data: [], // Initially an empty array for data
       layout: {
          title: {
-            text: "ACT Currents",
+            text: "Level 2 Outputs",
             font: { size: 16 },
             yanchor: 'top',
             xanchor: 'center',
@@ -109,43 +97,20 @@ let plots = [
             rangeselector: selectorOptions
          },
          yaxis: {
-            title: "Current [uA]",
-            // range: [0, 5]
+            title: "Counts",
+            range: [0, 7],
+            type: 'log'
          }
       }
    },
-   {      
-      graphDiv: document.getElementById("graph_4"), // The div element for the first plot
-      keys: ['T0-0L-IMon','T0-0R-IMon','T0-1L-IMon','T0-1R-IMon','T1-0L-IMon','T1-0R-IMon','T1-1L-IMon','T1-1R-IMon','T2-IMon','T3-IMon'], // List of keys related to the plot
-      selectedRange: 60 * 60 * 1000,
-      data: [], // Initially an empty array for data
-      layout: {
-         title: {
-            text: "T0 Currents",
-            font: { size: 16 },
-            yanchor: 'top',
-            xanchor: 'center',
-            y: 0.95, // Adjust this value to move the title down
-            x: 0.5, // Center the title horizontally
-         },
-         xaxis: {
-            title: "Time/ UTC",
-            rangeselector: selectorOptions
-         },
-         yaxis: {
-            title: "Current [uA]",
-            // range: [0, 5]
-         }
-      }
-   },
-   {      
+   {
       graphDiv: document.getElementById("graph_3"), // The div element for the first plot
-      keys: ['T0-0L-VMon','T0-0R-VMon','T0-1L-VMon','T0-1R-VMon','T1-0L-VMon','T1-0R-VMon','T1-1L-VMon','T1-1R-VMon','T2-VMon','T3-VMon'], // List of keys related to the plot
+      keys: ['T0 L1','T1 L1','T0T1L1','TOFR','TOFL'], // List of keys related to the plot
       selectedRange: 60 * 60 * 1000,
       data: [], // Initially an empty array for data
       layout: {
          title: {
-            text: "T0 Voltages",
+            text: "Level 1 Outputs, Group 1",
             font: { size: 16 },
             yanchor: 'top',
             xanchor: 'center',
@@ -157,19 +122,45 @@ let plots = [
             rangeselector: selectorOptions
          },
          yaxis: {
-            title: "Voltage [V]",
-            // range: [0, 5]
+            title: "Counts",
+            range: [0, 7],
+            type: 'log'
          }
       }
    },
-   {      
+   {
+      graphDiv: document.getElementById("graph_4"), // The div element for the first plot
+      keys: ['HC L1','MUON','ACTeOR','ACT0Rps','ACT0Lps'], // List of keys related to the plot
+      selectedRange: 60 * 60 * 1000,
+      data: [], // Initially an empty array for data
+      layout: {
+         title: {
+            text: "Level 1 Outputs, Group 2",
+            font: { size: 16 },
+            yanchor: 'top',
+            xanchor: 'center',
+            y: 0.95, // Adjust this value to move the title down
+            x: 0.5, // Center the title horizontally
+         },
+         xaxis: {
+            title: "Time/ UTC",
+            rangeselector: selectorOptions
+         },
+         yaxis: {
+            title: "Counts",
+            range: [0, 7],
+            type: 'log'
+         }
+      }
+   },
+   {
       graphDiv: document.getElementById("graph_5"), // The div element for the first plot
-      keys: ['HD-0-VMon','HD-1-VMon','HD-2-VMon','HD-3-VMon','HD-4-VMon','HD-5-VMon','HD-6-VMon','HD-7-VMon','HD-8-VMon','HD-9-VMon','HD-10-VMon','HD-11-VMon','HD-12-VMon','HD-13-VMon','HD-14-VMon'], // List of keys related to the plot
+      keys: ['T0-0L','T0-0R','T0-1L','T0-1R'], // List of keys related to the plot
       selectedRange: 60 * 60 * 1000,
       data: [], // Initially an empty array for data
       layout: {
          title: {
-            text: "HOD Voltages",
+            text: "T0 Counters",
             font: { size: 16 },
             yanchor: 'top',
             xanchor: 'center',
@@ -181,19 +172,20 @@ let plots = [
             rangeselector: selectorOptions
          },
          yaxis: {
-            title: "Voltage [V]",
-            // range: [0, 5]
+            title: "Counts",
+            range: [0, 7],
+            type: 'log'
          }
       }
    },
-   {      
+   {
       graphDiv: document.getElementById("graph_6"), // The div element for the first plot
-      keys: ['HD-0-IMon','HD-1-IMon','HD-2-IMon','HD-3-IMon','HD-4-IMon', 'HD-5-IMon','HD-6-IMon','HD-7-IMon','HD-8-IMon','HD-9-IMon','HD-10-IMon','HD-11-IMon','HD-12-IMon','HD-13-IMon','HD-14-IMon'],
+      keys: ['T1-0L','T1-0R','T1-1L','T1-1R'], // List of keys related to the plot
       selectedRange: 60 * 60 * 1000,
       data: [], // Initially an empty array for data
       layout: {
          title: {
-            text: "HOD Currents",
+            text: "T1 Counters",
             font: { size: 16 },
             yanchor: 'top',
             xanchor: 'center',
@@ -205,19 +197,20 @@ let plots = [
             rangeselector: selectorOptions
          },
          yaxis: {
-            title: "Current [uA]",
-            // range: [0, 5]
+            title: "Counts",
+            range: [0, 7],
+            type: 'log'
          }
       }
    },
-   {      
+   {
       graphDiv: document.getElementById("graph_7"), // The div element for the first plot
-      keys: ['HC-0-VMon', 'HC-1-VMon', 'HC2-VMon', 'PbGlass-VMon','MuonTag-R-VMon', 'MuonTag-L-VMon','WMS-source-VMon', 'WMS-reci-VMon'],
+      keys: ['ACT0-L','ACT0-R','ACT1-L','ACT1-R','ACT2-L','ACT2-R'], // List of keys related to the plot
       selectedRange: 60 * 60 * 1000,
       data: [], // Initially an empty array for data
       layout: {
          title: {
-            text: "Other Voltages",
+            text: "Electron Veto ACTs",
             font: { size: 16 },
             yanchor: 'top',
             xanchor: 'center',
@@ -229,19 +222,70 @@ let plots = [
             rangeselector: selectorOptions
          },
          yaxis: {
-            title: "Voltage [V]",
-            // range: [0, 5]
+            title: "Counts",
+            range: [0, 7],
+            type: 'log'
          }
       }
    },
-   {      
+   {
       graphDiv: document.getElementById("graph_8"), // The div element for the first plot
-      keys: ['HC-0-IMon', 'HC-1-IMon', 'HC2-IMon', 'PbGlass-IMon','MuonTag-R-IMon', 'MuonTag-L-IMon','WMS-source-IMon','WMS-reci-IMon'],
+      keys: ['ACT3-L','ACT3-R','ACT4-L','ACT4-R','ACT5-L','ACT5-R'], // List of keys related to the plot
       selectedRange: 60 * 60 * 1000,
       data: [], // Initially an empty array for data
       layout: {
          title: {
-            text: "Other Currents",
+            text: "Mu/Pi Separation ACTs",
+            font: { size: 16 },
+            yanchor: 'top',
+            xanchor: 'center',
+            y: 0.95, // Adjust this value to move the title down
+            x: 0.5, // Center the title horizontally
+         },
+         xaxis: {
+            title: "Time/ UTC",     
+            rangeselector: selectorOptions
+         },
+         yaxis: {
+            title: "Counts",
+            range: [0, 7],
+            type: 'log'
+         }
+      }
+   },
+   {
+      graphDiv: document.getElementById("graph_9"), // The div element for the first plot
+      keys: ['T4-L','T4-R','HC-0','HC-1','MuT-L','MuT-R','PbG'], // List of keys related to the plot
+      selectedRange: 60 * 60 * 1000,
+      data: [], // Initially an empty array for data
+      layout: {
+         title: {
+            text: "T4, Hole Counters, Muon Tag, Lead Glass",
+            font: { size: 16 },
+            yanchor: 'top',
+            xanchor: 'center',
+            y: 0.95, // Adjust this value to move the title down
+            x: 0.5, // Center the title horizontally
+         },
+         xaxis: {      
+            title: "Time/ UTC",
+            rangeselector: selectorOptions
+         },
+         yaxis: {
+            title: "Counts",
+            range: [0, 7],
+            type: 'log'
+         }
+      }
+   },
+   {
+      graphDiv: document.getElementById("graph_10"), // The div element for the first plot
+      keys: ['TOF-0','TOF-1','TOF-2','TOF-3','TOF-4','TOF-5','TOF-6','TOF-7'], // List of keys related to the plot
+      selectedRange: 60 * 60 * 1000,
+      data: [], // Initially an empty array for data
+      layout: {
+         title: {
+            text: "TOF, Group 1",
             font: { size: 16 },
             yanchor: 'top',
             xanchor: 'center',
@@ -253,148 +297,37 @@ let plots = [
             rangeselector: selectorOptions
          },
          yaxis: {
-            title: "Current [uA]",
-            // range: [0, 5]
+            title: "Counts",
+            range: [0, 7],
+            type: 'log'
          }
       }
-   },  
-   // {
-   //    graphDiv: document.getElementById("graph_2"), // The div element for the first plot
-   //    keys: ['UT1_Depth', 'LT1_Level', 'PT6_Depth', 'PT5_Depth'], // List of keys related to the plot
-   //    selectedRange: 8 * 60 * 60 * 1000,
-   //    data: [], // Initially an empty array for data
-   //    layout: {
-   //       title: {
-   //          text: "Detector Level",
-   //          font: { size: 16 },
-   //          yanchor: 'top',
-   //          xanchor: 'center',
-   //          y: 0.95, // Adjust this value to move the title down
-   //          x: 0.5, // Center the title horizontally
-   //       },
-   //       xaxis: {
-   //          title: "Time/ UTC",
-   //          rangeselector: selectorOptions
-   //       },
-   //       yaxis: {
-   //          title: "Detector Level [m]",
-   //          range: [3.2, 3.35]
-   //       }
-   //    }
-   // },
-   // {
-   //    graphDiv: document.getElementById("graph_3"), // The div element for the first plot
-   //    keys: ['QC1_Conductivity', 'QC2_Conductivity', 'TDS', 'UT1_Conductivity','Salinity'], // List of keys related to the plot
-   //    y2keys: ['UT1_Conductivity','TDS'],
-   //    selectedRange: 12 * 60 * 60 * 1000,
-   //    data: [], // Initially an empty array for data
-   //    layout: {
-   //       title: {
-   //          text: "Water Quality",
-   //          font: { size: 16 },
-   //          yanchor: 'top',
-   //          xanchor: 'center',
-   //          y: 0.95, // Adjust this value to move the title down
-   //          x: 0.5, // Center the title horizontally
-   //       },
-   //       xaxis: {
-   //          title: "Time/ UTC",
-   //          rangeselector: selectorOptions
-   //       },
-   //       yaxis: {
-   //          title: "QC* Water Quality [μS/cm] & Salinity",
-   //          range: [0, 0.4]
-   //       },
-   //       //remove this if we don't have a second y axis 
-   //       yaxis2: {
-   //           title: "UT-1 Water Quality [μS/cm] & TDS", // Use the title from y2_plot1
-   //           overlaying: 'y', // Overlay on the primary y-axis
-   //           side: 'right', // Position the y2 axis on the right side
-   //           range: [2, 5.7] // Set the range from y2_plot1
-   //        }
-   //    }
-   // },
-   // {
-   //    graphDiv: document.getElementById("graph_4"), // The div element for the first plot
-   //    keys: ['UT1_Temperature'], // List of keys related to the plot
-   //    selectedRange: 24 * 60 * 60 * 1000,
-   //    data: [], // Initially an empty array for data
-   //    layout: {
-   //       title: {
-   //          text: "Water Temperature",
-   //          font: { size: 16 },
-   //          yanchor: 'top',
-   //          xanchor: 'center',
-   //          y: 0.95, // Adjust this value to move the title down
-   //          x: 0.5, // Center the title horizontally
-   //       },
-   //       xaxis: {
-   //          title: "Time/ UTC",
-   //          rangeselector: selectorOptions
-   //       },
-   //       yaxis: {
-   //          title: "Water temp [°C]",
-   //          range: [18, 25]
-   //       },
-   //    }
-   // },
-   // {
-   //    graphDiv: document.getElementById("graph_5"), // The div element for the first plot
-   //    keys: ['PT3_Level', 'MixTank_Low', 'MixTank_High'], // List of keys related to the plot
-   //    y2keys: ['MixTank_Low', 'MixTank_High'],
-   //    selectedRange: 60 * 60 * 1000,
-   //    data: [], // Initially an empty array for data
-   //    layout: {
-   //       title: {
-   //          text: "Retention Tank",
-   //          font: { size: 16 },
-   //          yanchor: 'top',
-   //          xanchor: 'center',
-   //          y: 0.95, // Adjust this value to move the title down
-   //          x: 0.5, // Center the title horizontally
-   //       },
-   //       xaxis: {
-   //          title: "Time/ UTC",
-   //          rangeselector: selectorOptions
-   //       },
-   //       yaxis: {
-   //          title: "Retention Tank PT3 [m]",
-   //          range: [0.3, 0.7]
-   //       },
-   //       //remove this if we don't have a second y axis 
-   //       yaxis2: {
-   //          title: "'On/Off", // Use the title from y2_plot1
-   //          overlaying: 'y', // Overlay on the primary y-axis
-   //          side: 'right', // Position the y2 axis on the right side
-   //          range: [-0.5, 1.5] // Set the range from y2_plot1
-   //       }
-   //    }
-   // },
-   // {
-   //    graphDiv: document.getElementById("graph_6"), // The div element for the first plot
-   //    keys: ['LeakDetector'], // List of keys related to the plot
-   //    selectedRange: 12 * 60 * 60 * 1000,
-   //    data: [], // Initially an empty array for data
-   //    layout: {
-   //       title: {
-   //          text: "Leak Detector",
-   //          font: { size: 16 },
-   //          yanchor: 'top',
-   //          xanchor: 'center',
-   //          y: 0.95, // Adjust this value to move the title down
-   //          x: 0.5, // Center the title horizontally
-   //       },
-   //       xaxis: {
-   //          title: "Time/ UTC",
-   //          rangeselector: selectorOptions
-   //       },
-   //       yaxis: {
-   //          title: "On/Off",
-   //          range: [-0.5, 1.5]
-   //       },
-   //    }
-   // }
-
+   },
+   {
+      graphDiv: document.getElementById("graph_11"), // The div element for the first plot
+      keys: ['TOF-8','TOF-9','TOF-A','TOF-B','TOF-C','TOF-D','TOF-E','TOF-F'], // List of keys related to the plot
+      selectedRange: 60 * 60 * 1000,
+      data: [], // Initially an empty array for data
+      layout: {
+         title: {
+            text: "TOF, Group 2",
+            font: { size: 16 },
+            yanchor: 'top',
+            xanchor: 'center',
+            y: 0.95, // Adjust this value to move the title down
+            x: 0.5, // Center the title horizontally
+         },
+         xaxis: {
+            title: "Time/ UTC",     
+            rangeselector: selectorOptions
+         },
+         yaxis: {
+            title: "Counts",
+            range: [0, 7],
+            type: 'log'
+         }
+      }
+   }
 ];
 
 //copied from Ben's code in monitoring.js this queries the SQL and returns the table
@@ -505,7 +438,7 @@ function createSinglePlot(plot, xdata, ydata, now) {
    //add the range using the selected range 
    plot.layout.xaxis.range = [lowerLimit.toISOString(), now.toISOString()];
 
-   console.log("graphdiv", plot.graphDiv)
+   // console.log("graphdiv", plot.graphDiv)
    Plotly.purge(plot.graphDiv); // Clear any existing plot
    Plotly.newPlot(plot.graphDiv, plot.data, plot.layout); // Plot the data
 
@@ -513,7 +446,7 @@ function createSinglePlot(plot, xdata, ydata, now) {
 }
 
 function updateSinglePlot(plot, xdata_new, ydata_new, now) {
-   console.log("Calling redrawplot")
+   // console.log("Calling redrawplot")
 
    var lowerLimit = new Date(now.getTime() - plot.selectedRange);  // Subtract 1 hour
 
@@ -544,7 +477,7 @@ async function makeplot(plotsVector) {
 
    const [xdata, ydata] = await getTimeDataForDevice(deviceName, time_option);
    for (iPlot = 0; iPlot < plotsVector.length; iPlot++) {
-      console.log("graphdiv1", plotsVector[iPlot].graphDiv)
+      // console.log("graphdiv1", plotsVector[iPlot].graphDiv)
       createSinglePlot(plotsVector[iPlot], xdata, ydata, now);
    }
 
@@ -552,7 +485,7 @@ async function makeplot(plotsVector) {
 
 
 async function updateplot(plotVector) { //fucntion to update plot
-   console.log("updateplot vector")
+   // console.log("updateplot vector")
    if (updating) return;
    updating = true;
 
@@ -611,3 +544,4 @@ document.addEventListener("DOMContentLoaded", async function () {
    let updateinterval = setInterval(() => updateplot(plots), 2000);
 });
 
+//setInterval( updateplot, 2000, plots);

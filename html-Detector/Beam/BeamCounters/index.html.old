@@ -1,0 +1,60 @@
+<head>
+<title>ToolDAQ Webpage</title>
+<style>
+    .graph-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* Creates two equal columns */
+        gap: 10px; /* Adds space between grid items */
+    }
+    .graph {
+        height: 500px; /* Fixed height for each graph */
+    }
+</style>
+</head>
+
+
+
+
+<!--#include virtual="/includes/header.html" -->
+<!--#include virtual="../subheader.html" -->
+<!--#include virtual="/includes/drawer.html" -->
+
+
+<script type="module" src="/includes/functions.js"></script>
+
+  <!--<div id="status"><br></div> -->
+
+  <h1 align="center">BeamCounters</h1>
+		
+  <div align="center">
+  <label for="autoUpdate">AutoUpdate: </label>
+  <input id="autoUpdate" type="checkbox" checked>
+  <label for="refreshRate">Refresh Rate [s]: </label>
+  <input id="refreshRate" type="number" style="background-color: white" class="form-control" value='5' >
+  <br><br>
+		
+  <label for="historyLength">History Length:</label>
+  <input id="historyLength" type="number" style="background-color: white" class="form-control" value='200' >
+  <br><br>
+
+<!-- test plotting with jsroot -->
+<!-- NOTE: YOU MUST SPECIFY AT LEAST ONE DIMENSION TO YOUR PLOT DIV,
+     ELSE THE PLOT WILL BE 0 SIZE AND INVISIBLE -->
+    <!-- <div class="graph-container"> -->
+    <div align="center" id="output"></div>
+    <div id="primary" style="height: 500px;"></div>
+    <div id="level2" style="height: 500px;"></div>
+    <div id="level1_0" style="height: 500px;"></div>
+    <div id="level1_1" style="height: 500px;"></div>
+    <div id="t0_counts" style="height: 500px;"></div>
+    <div id="t1_counts" style="height: 500px;"></div>
+    <div id="eveto_acts" style="height: 500px;"></div>
+    <div id="mupi_acts" style="height: 500px;"></div>
+    <br>
+</div>
+
+<!-- script src="https://cdn.plot.ly/plotly-latest.min.js"></script> -->
+<script src="https://cdn.plot.ly/plotly-3.0.1.min.js"></script>
+<!-- <script src="./demojsroot.js"></script> -->
+<script src="./makeBeamCounterPlots_v2.js"></script>
+<!--#include virtual="/includes/footer.html" -->

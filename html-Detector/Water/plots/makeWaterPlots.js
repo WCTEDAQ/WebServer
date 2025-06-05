@@ -76,7 +76,7 @@ let plots = [
             title: "Flow [t/hr]", // Use the title from y2_plot1
             overlaying: 'y', // Overlay on the primary y-axis
             side: 'right', // Position the y2 axis on the right side
-            range: [2, 2.5] // Set the range from y2_plot1
+            range: [0.7, 2.] // Set the range from y2_plot1
          }
       }
    },
@@ -107,7 +107,7 @@ let plots = [
             title: "Detector Level, PT-5 [m]", // Use the title from y2_plot1
             overlaying: 'y', // Overlay on the primary y-axis
             side: 'right', // Position the y2 axis on the right side
-            range: [3.2, 3.3] // Set the range from y2_plot1
+            range: [0.5, 1.0] // Set the range from y2_plot1
          }
       }
    },
@@ -132,14 +132,14 @@ let plots = [
          },
          yaxis: {
             title: "QC* Water Quality [μS/cm] & Salinity",
-            range: [0, 0.4]
+            range: [0, 1]
          },
          //remove this if we don't have a second y axis 
          yaxis2: {
              title: "UT-1 Water Quality & TDS [a.u.]", // Use the title from y2_plot1
              overlaying: 'y', // Overlay on the primary y-axis
              side: 'right', // Position the y2 axis on the right side
-             range: [0, 80] //[60, 220] // [2, 6.8] // Set the range from y2_plot1
+             range: [0, 4] //[60, 220] // [2, 6.8] // Set the range from y2_plot1
           }
       }
    },

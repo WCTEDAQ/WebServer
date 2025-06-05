@@ -1,0 +1,48 @@
+<head>
+<title>ToolDAQ Webpage</title>
+<style>
+    .graph-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* Creates two equal columns */
+        gap: 10px; /* Adds space between grid items */
+    }
+    .graph {
+        height: 500px; /* Fixed height for each graph */
+    }
+</style>
+</head>
+
+
+
+
+<!--#include virtual="/includes/header.html" -->
+<!--#include virtual="../subheader.html" -->
+<!--#include virtual="/includes/drawer.html" -->
+
+
+<script type="module" src="/includes/functions.js"></script>
+
+<!-- <div id="status"><br></div> -->
+
+<!-- test plotting with jsroot -->
+<!-- NOTE: YOU MUST SPECIFY AT LEAST ONE DIMENSION TO YOUR PLOT DIV,
+     ELSE THE PLOT WILL BE 0 SIZE AND INVISIBLE -->
+<div class="graph-container">
+    <div id="graph_1" style="height: 500px;"></div>
+    <div id="graph_2" style="height: 500px;"></div>
+    <div id="graph_3" style="height: 500px;"></div>
+    <div id="graph_4" style="height: 500px;"></div>
+    <div id="graph_5" style="height: 500px;"></div>
+    <div id="graph_6" style="height: 500px;"></div>
+    <div id="graph_7" style="height: 500px;"></div>
+    <div id="graph_8" style="height: 500px;"></div>
+    <div id="graph_9" style="height: 500px;"></div>
+    <div id="graph_10" style="height: 500px;"></div>
+    <div id="graph_11" style="height: 500px;"></div>
+</div>
+
+<script src="https://cdn.plot.ly/plotly-3.0.1.min.js"></script> 
+<!-- <script src="./demojsroot.js"></script> -->
+<script src="./makeBeamCounterPlots.js"></script>
+<!-- <script type="module" src="./statusbox.js"></script> -->
+<!--#include virtual="/includes/footer.html" -->

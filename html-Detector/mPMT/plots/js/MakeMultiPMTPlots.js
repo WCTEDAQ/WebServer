@@ -1,15 +1,19 @@
 
-
+var autoscrollData = true;
 var updating = false;
-
+var autoscrollDataButton;
+var autoscrollDataTextFrame;
+var autoscrollDataColorBit = 0b0;
 
 var xDataFIFOs = new Map();
 var yDataFIFOs = new Map();
 
 const MEDIAN_FILTER_WINDOW_LENGTH = 3;
 const DIFFERENTIATE_DT_IN_SEC = 5;
+const CURRENT_VALUE_SCALE_FACTOR = 10;
 
 var dataTimeIntervalID = 0;
+var autoscrollDataBlinkingTextIntervalID = 1;
 
 var mPMTNumber = "";
 
@@ -35,26 +39,6 @@ var selectorOptions = { //plot options definitions
       stepmode: 'backward',
       count: 3,
       label: '3hr'
-   }, {
-      step: 'hour',
-      stepmode: 'backward',
-      count: 8,
-      label: '8hr'
-   }, {
-      step: 'day',
-      stepmode: 'backward',
-      count: 1,
-      label: '1d'
-   }, {
-      step: 'day',
-      stepmode: 'backward',
-      count: 3,
-      label: '3d'
-   }, {
-      step: 'week',
-      stepmode: 'backward',
-      count: 1,
-      label: '1w'
    }, {
       step: 'all'
    }],
@@ -110,7 +94,7 @@ let plots = [
          },
          yaxis: {
             title: "Current [uA]",
-            range: [0, 20]
+            range: [0, 2]
          }
       },
       medianFilter: true
@@ -119,7 +103,7 @@ let plots = [
       graphDiv: document.getElementById("graph_3"), // The div element for the first plot
       keys: ['pmt0_hit_cnt', 'pmt1_hit_cnt', 'pmt2_hit_cnt', 'pmt3_hit_cnt', 'pmt4_hit_cnt', 'pmt5_hit_cnt', 'pmt6_hit_cnt', 'pmt7_hit_cnt',
          'pmt8_hit_cnt', 'pmt9_hit_cnt', 'pmt10_hit_cnt', 'pmt11_hit_cnt', 'pmt12_hit_cnt', 'pmt13_hit_cnt', 'pmt14_hit_cnt',
-         'pmt15_hit_cnt', 'pmt16_hit_cnt', 'pmt17_hit_cnt', 'pmt18_hit_cnt', 'pmt19_hit_cnt'], // List of keys related to the plot
+         'pmt15_hit_cnt', 'pmt16_hit_cnt', 'pmt17_hit_cnt', 'pmt18_hit_cnt'], // List of keys related to the plot
       selectedRange: 60 * 60 * 1000,
       data: [], // Initially an empty array for data
       layout: {
@@ -143,12 +127,12 @@ let plots = [
    },
    {
       graphDiv: document.getElementById("graph_4"), // The div element for the first plot
-      keys: ['brb_fpga_temp'], // List of keys related to the plot
+      keys: ['brb_temp_0', 'brb_temp_1', 'brb_temp_2'], // List of keys related to the plot
       selectedRange: 60 * 60 * 1000,
       data: [], // Initially an empty array for data
       layout: {
          title: {
-            text: "MPMT CPU Temperature",
+            text: "MPMT Onboard Sensors Temperature",
             font: { size: 16 },
             yanchor: 'top',
             xanchor: 'center',
@@ -305,18 +289,46 @@ document.addEventListener("DOMContentLoaded", async function () {
    let findMPMTButton = document.getElementById("findMPMTButton");
    findMPMTButton.addEventListener("click", async (event) => {
 
-      // let v = [5, 7, 8, 10, 15];
-      // console.log(differentiate(v, 5));
       clearInterval(dataTimeIntervalID);
 
-      let mPMTTextBox = document.getElementById("mPMTTextBox");
+      let mPMTTextBox = document.getElementById("mPMTTextField");
       mPMTNumber = mPMTTextBox.value;
+
+      if (mPMTNumber.trim()) {    // Check non-empty
+         let statusDiv   = document.getElementById("status");
+         statusDiv.innerHTML = `<p style="text-align:center;">${mPMTNumber}</p>`;
+       }
+   
 
       await makePlots("_PMT" + mPMTNumber);
       setupPlotListeners();
 
       dataTimeIntervalID = setInterval(() => updatePlots("_PMT" + mPMTNumber), 2000);
-   })
+   });
+
+   autoscrollDataButton = document.getElementById("autoscrollButton");
+   autoscrollDataButton.addEventListener("click", async (event) => {
+      // autoscrollButton.style.background = "#000000";
+      autoscrollData = true;
+      console.log("autoscroll buttone clicked")
+   });
+   
+   autoscrollDataTextFrame = document.getElementById("autoscrollTextFrame");
+   // let liveAutoscrollText = document.getElementById("")
+   autoscrollDataBlinkingTextIntervalID = setInterval(async () => {
+      if(autoscrollData == true) {
+         autoscrollDataTextFrame.textContent = "!DATA LIVE ON!";
+         autoscrollDataColorBit ^= 1;
+         if(autoscrollDataColorBit) {
+            autoscrollDataTextFrame.setAttribute("style", "color: red; font-size:14pt");
+         } else {
+            autoscrollDataTextFrame.setAttribute("style", "color: grey; font-size:14pt");
+         }
+      } else {
+         autoscrollDataTextFrame.textContent = "!DATA LIVE OFF!";
+         autoscrollDataTextFrame.setAttribute("style", "color: grey; font-size:14pt");
+      }
+   }, 1000);
 });
 
 async function makePlots(deviceName) {
@@ -368,7 +380,10 @@ function createSinglePlot(plot, xdata, ydata, now) {
             x_data_to_plot = xdata.get(key);
             y_data_to_plot = ydata.get(key);  
          }
-         
+    
+         if(key.includes("hvcurval")) {
+            y_data_to_plot = y_data_to_plot.map((value) => value / CURRENT_VALUE_SCALE_FACTOR);
+         }
          //decide whether to use a second y axis 
          const data_trace = {
             //the name must be the key for the update function to work
@@ -465,7 +480,14 @@ function setupPlotListeners() {
          plotDiv.on('plotly_relayout', function (eventData) {
             // Capture the selected range
             console.log("onPlotLayout");
+
+            console.log(eventData);
+
             if (eventData['xaxis.range[0]'] !== undefined && eventData['xaxis.range[1]'] !== undefined) {
+               
+               autoscrollData = false;
+               updatemenus[0].font['color'] = '#000000';
+
                const selectedRange = [
                   eventData['xaxis.range[0]'],
                   eventData['xaxis.range[1]']
@@ -474,11 +496,16 @@ function setupPlotListeners() {
                const startDate = new Date(selectedRange[0] + "Z");
                const endDate = new Date(selectedRange[1]);
 
+               console.log("Start date / end date: ", startDate, endDate)
                // Calculate the difference in milliseconds and then convert to days (or any other unit)
-               const rangeDifference = (endDate - startDate); // Difference in days                       
+               const rangeDifference = Math.abs(endDate - startDate); // Difference in days                       
                // Set the range difference directly in the plot object
                plot.selectedRange = rangeDifference;
                console.log("Selected Range for, Plot " + plot.layout.title + ":", selectedRange);
+            } 
+            if(eventData['xaxis.autorange'] !== undefined) {
+               autoscrollData = false;
+               updatemenus[0].font['color'] = 'red';               
             }
          });
       } else {
@@ -516,6 +543,10 @@ function updateSinglePlot(plot, xdata_new, ydata_new, now) {
                   const NUM_OF_LAST_ELEMENTS_TO_FILTER = 10;
 
                   filteredNewData = medianFilter(yDataFIFOs.get(key).slice(-NUM_OF_LAST_ELEMENTS_TO_FILTER), MEDIAN_FILTER_WINDOW_LENGTH);
+                  
+                  if(key.includes("hvcurval")) {
+                     filteredNewData = filteredNewData.map(value => value / CURRENT_VALUE_SCALE_FACTOR);
+                  }
 
                   x_data_to_plot = xDataFIFOs.get(key);
                   y_data_to_plot = plot.data[i].y.slice(0, -NUM_OF_LAST_ELEMENTS_TO_FILTER).concat(filteredNewData);
@@ -531,9 +562,6 @@ function updateSinglePlot(plot, xdata_new, ydata_new, now) {
 
                   diffNewData = differentiate(yDataFIFOs.get(key), TIME_BETWEEN_THE_PACKETS_IN_SEC);
                   
-                  console.log(yDataFIFOs.get(key))
-                  console.log(diffNewData)
-                  
                   x_data_to_plot = xDataFIFOs.get(key).slice(1);
                   y_data_to_plot = diffNewData;
                } else {
@@ -542,7 +570,7 @@ function updateSinglePlot(plot, xdata_new, ydata_new, now) {
                }
             } else {
                x_data_to_plot = xDataFIFOs.get(key);
-               y_data_to_plot = yDataFIFOs.get(key);;  
+               y_data_to_plot = yDataFIFOs.get(key);
             }
 
             plot.data[i].x = x_data_to_plot;
@@ -551,8 +579,10 @@ function updateSinglePlot(plot, xdata_new, ydata_new, now) {
       }
    }
 
-   //change the axis limits to reflect current time and previous choice
-   plot.layout.xaxis.range = [lowerLimit.toISOString(), now.toISOString()];
+   if(autoscrollData == true) {
+      //change the axis limits to reflect current time and previous choice
+      plot.layout.xaxis.range = [lowerLimit.toISOString(), now.toISOString()];
+   }
 
    Plotly.update(plot.graphDiv, plot.data, plot.layout);
 }

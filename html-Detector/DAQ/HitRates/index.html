@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<title>ToolDAQ Webpage</title>
+	  
+	<!--#include virtual="/includes/header.html" -->
+	<!--#include virtual="subheader.html" -->
+	
+	<!-- ↓ this closes the head and opens the body ↓ -->
+	<!--#include virtual="/includes/drawer.html" -->
+	
+		<h1 align="center">Hit Rate Monitoring</h1>
+		
+		<div align="center">
+		<label for="autoUpdate">AutoUpdate: </label>
+		<input id="autoUpdate" type="checkbox" checked>
+		<label for="refreshRate">Refresh Rate [s]: </label>
+		<input id="refreshRate" type="number" style="background-color: white" class="form-control" value='60' >
+		<br><br>
+		
+		<label for="historyLength">History Length:</label>
+		<input id="historyLength" type="number" style="background-color: white" class="form-control" value='200' >
+		<br><br>
+		
+		<div align="center" id="output"></div>
+		<label for="mpmtid">MPMTID:</label>
+		<input id="mpmtid" type="number" style="background-color: white" class="form-control" value='1' >
+		<div id="hit_rate"></div>
+		<!-- hit rates heatmap: x=time, y=MPMTID, z=hitrate -->
+		<div id="heatmap" style="height:500px;"></div>
+		<br>
+		
+		</div>
+		
+		<br>
+		
+		<script src="https://cdn.plot.ly/plotly-2.3.0.min.js"></script>
+		<script type="module" src="/includes/functions.js"></script>
+		<script type="module" src="./hitrates.js" async></script>
+		
+	<!-- ↓ this closes the body -->
+	<!--#include virtual="/includes/footer.html" -->
+	
+	
+</html>
+
+
+

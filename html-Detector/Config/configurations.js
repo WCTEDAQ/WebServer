@@ -34,11 +34,19 @@ function GetConfigurations() {
 }
 
 function addConfiguration() {
-    const name = document.getElementById("name").value;
-    const description = document.getElementById("description").value;
-    const author = document.getElementById("author").value;
-    const data = document.getElementById("data").value;
-
+    let name = document.getElementById("name").value;
+    let description = document.getElementById("description").value;
+    let author = document.getElementById("author").value;
+    let data = document.getElementById("data").value;
+    
+    // sanitise things going into the DB - we need to replace single quotes at the least
+    const reg = new RegExp("'",'g');
+    const rep = "''";
+    name = name.replace(reg,rep);
+    description = description.replace(reg,rep);
+    author = author.replace(reg,rep);
+    data = data.replace(reg,rep);
+    
     // Ensure data is in JSON format
     try {
         JSON.parse(data);
@@ -46,13 +54,11 @@ function addConfiguration() {
         alert("Invalid JSON format in data field.");
         return;
     }
-
-    const queryInsert = `
-        INSERT INTO configurations (time, name, version, description, author, data)
-        VALUES ( now(), '${name}', (select COALESCE(MAX(version)+1,0) FROM configurations WHERE name='${name}'),
-                 '${description}', '${author}', '${data}'::jsonb)
-    `;
-
+    
+    let queryInsert = `INSERT INTO configurations (time, name, version, description, author, data) \
+                         VALUES ( now(), '${name}', (select COALESCE(MAX(version)+1,0) FROM configurations \
+                         WHERE name='${name}'), '${description}', '${author}', '${data}'::jsonb)`;
+    
     GetPSQLTable(queryInsert, "root", "daq", true).then(() => {
         // Clear the form after successful submission
         document.getElementById("configForm").reset();

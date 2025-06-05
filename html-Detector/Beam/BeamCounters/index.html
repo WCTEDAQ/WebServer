@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+        <head>
+        <title>ToolDAQ Webpage</title>
+          
+        <!--#include virtual="/includes/header.html" -->
+        <!--#include virtual="subheader.html" -->
+        
+        <!-- ↓ this closes the head and opens the body ↓ -->
+        <!--#include virtual="/includes/drawer.html" -->
+
+
+		<h1 align="center">Beam Counters </h1>
+		
+		<div align="center">
+		<label for="autoUpdate">AutoUpdate: </label>
+		<input id="autoUpdate" type="checkbox" checked>
+		<label for="refreshRate">Refresh Rate [s]: </label>
+		<input id="refreshRate" type="number" style="background-color: white" class="form-control" value='20' >
+		<br><br>
+		
+		<label for="historyLength">History Length:</label>
+		<input id="historyLength" type="number" style="background-color: white" class="form-control" value='200' >
+		<br><br>
+
+		<div align="center" id="output"></div>
+		<div id="primary" style="height:500px;"></div>
+                <div id="level2" style="height:500px;"></div>
+		<br>
+		
+		</div>
+		
+		<br>
+		
+		<script src="https://cdn.plot.ly/plotly-2.3.0.min.js"></script>
+		<script type="module" src="/includes/functions.js"></script>
+		<script type="module" src="./makeBeamCounterPlots_v3.js" async></script>
+
+       <!-- ↓ this closes the body -->
+        <!--#include virtual="/includes/footer.html" -->
+        
+        
+</html>
+

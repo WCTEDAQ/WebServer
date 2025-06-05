@@ -11,10 +11,12 @@ var lastupdates = new Map(); // map of trace names to last data time
 var updatingMap = new Map(); // guard to prevent multiple update calls overlapping
 var plotTypes = new Map();   // map of plot name to kind of plot (i.e. what code draws it)
 var layoutMap = new Map();
+var indexMap = new Map();  // map wavelength to index in appropriate trace for 1D plots
 
 // and the set of plots - should match div names
 //var plots=["sol_temps","flow_rate","leak_sense","led_intensity","last_traces","last_absorbance","absorbance_history"];
-var plots=["sol_temps","flow_rate","leak_sense","led_intensity","last_traces","last_absorbance","absorbance_UV","absorbance_Vis"];
+var plots=["sol_temps","leak_sense","led_intensity","last_traces","last_absorbance","absorbance_UV","absorbance_Vis","gd_conc","gd_conc2","gd_abs","gd_abs2","g_bg","1d_absorbances"];
+ // "flow_rate" taken out as disabled for now
 
 if (document.readyState !== 'loading'){
 	//console.log("already loaded, initing");
@@ -31,7 +33,7 @@ function Init(){
 	
 	// key is plot name, value is an array of monitoring data JSON keys that will become traces
 	plotTraces.set('sol_temps',['sol_temp_0', 'sol_temp_1','sol_temp_2']);
-	plotTraces.set('flow_rate',['flow_rate']);
+	//plotTraces.set('flow_rate',['flow_rate']);
 	plotTraces.set('leak_sense',['leak_check']);
 	plotTraces.set('led_intensity',['gad_arm_275_A_intensity', 'ref_arm_275_A_intensity', 'gad_arm_White_intensity', 'ref_arm_White_intensity']);
 	plotTraces.set('last_traces',['gad_275_A','gad_White', 'ref_275_A','ref_White']);
@@ -39,16 +41,37 @@ function Init(){
 	plotTraces.set('absorbance_history',['absorbance_275_A','absorbance_White']);
 	plotTraces.set('absorbance_UV',['absorbance_275_A']);
 	plotTraces.set('absorbance_Vis',['absorbance_White']);
+	plotTraces.set('gd_conc',['gd_conc']);
+	plotTraces.set('gd_conc2',['gd_conc2']);
+	plotTraces.set('gd_abs',['g_abs_bgrem','g_absfit']);
+	plotTraces.set('gd_abs2',['g_abs_bgrem','g_absfit2']);
+	plotTraces.set('g_bg',['g_bgfit','absorbance_275_A']);
+	
+	//plotTraces.set('1d_absorbances',['269','273','284','450','560']); // N.B. 279 is tertiary gd peak, others all outside gd
+	plotTraces.set('1d_absorbances',['269','273','284']); // N.B. 279 is tertiary gd peak, others all outside gd
+	indexMap.set('269',81);
+	indexMap.set('273',92);     // primary peak   - these need to be in the array above
+	//indexMap.set('273',101);     // secondary peak
+	//indexMap.set('279',109);  // tertiary peak
+	indexMap.set('284',124);
+	indexMap.set('450',157);
+	indexMap.set('560',523);
 	
 	plotTypes.set('sol_temps','TS');     // 1D time series plot
-	plotTypes.set('flow_rate','TS');
+	//plotTypes.set('flow_rate','TS');
 	plotTypes.set('leak_sense','TS');
 	plotTypes.set('led_intensity','TS');
+	plotTypes.set('gd_conc','TS');
+	plotTypes.set('gd_conc2','TS');
 	plotTypes.set('last_traces','ROOT'); // ROOT plot
 	plotTypes.set('last_absorbance','ROOT');
 	plotTypes.set('absorbance_history','HM'); // plotly heatmap
 	plotTypes.set('absorbance_UV','HM');
 	plotTypes.set('absorbance_Vis','HM');
+	plotTypes.set('gd_abs','ROOT');
+	plotTypes.set('gd_abs2','ROOT');
+	plotTypes.set('g_bg','ROOT');
+	plotTypes.set('1d_absorbances','TS');
 	
 	makeplots();
 	
@@ -59,7 +82,7 @@ function Init(){
 			let refreshrate = document.getElementById("refreshRate").value;
 			if(refreshrate<1) refreshrate=1;
 			updateinterval = setInterval(updateplots, refreshrate*1000);
-			// since this doesn't fire immediately, call it now
+			// since this doesn't fire immediately, call it now:
 			updateplots();
 		}
 		else {
@@ -100,6 +123,11 @@ function Init(){
 		
 	});
 	
+	if(document.getElementById("autoUpdate").checked){
+		let refreshrate = document.getElementById("refreshRate").value;
+		updateinterval = setInterval(updateplots, refreshrate*1000);
+	}
+	
 };
 
 //function to generate plotly plots
@@ -116,6 +144,7 @@ function makeplots(){
 
 function updateplots(){
 	
+	console.log("updating plots");
 	for(const plotname of plots){
 		//console.log(`updating plot ${plotname} of type ${plotTypes.get(plotname)}`);
 		if(plotTypes.get(plotname)==='TS') updateplot(plotname);
@@ -167,7 +196,15 @@ async function makeplot(plotname){
 	try {
 		for(const trace of traces){
 			
-			var command = `select time,data->'${trace}' as val from monitoring where device='GAD' order by time desc LIMIT ${numrows}`;
+			var command = `select time,data->'${trace}' as val from monitoring where device='GAD' AND time >= now() - INTERVAL '5 days' order by time desc LIMIT ${numrows}`;
+			
+			// 1d plot
+			if(plotname==='1d_absorbances'){
+				//let tracename = (Number(trace)<300) ? 'absorbance_275_A' : 'absorbance_White';
+				let tracename = (Number(trace)<300) ? 'g_abs_bgrem' : 'absorbance_White';
+				const index = indexMap.get(trace);
+				command = `select time,data->'fY'->>${index} as val from rootplots where name='${tracename}' and time >= now() - INTERVAL '5 days' order by time desc LIMIT ${numrows}`;
+			}
 			
 			//console.log("makeplots submitting query "+command);
 			const resultstring = await GetPSQL(command);
@@ -183,8 +220,8 @@ async function makeplot(plotname){
 			data.push({
 				name: trace,
 				//mode: 'lines',        // 'mode' aka 'type'
-				mode: 'markers',
-				//mode:'lines+markers', //  aka 'scatter'
+				//mode: 'markers',
+				mode:'lines+markers', //  aka 'scatter'
 				x: unpack(result, 'time'),
 				y: unpack(result, 'val')
 			});
@@ -251,11 +288,26 @@ async function updateplot(plotname){
 		for(const trace of traces){
 			
 			const last=lastupdates.get(plotname+':'+trace);
-			//console.log("got last update of trace "+trace+" at "+last);
+			console.log("got last update of trace "+trace+" at "+last);
+			// must have been an error generating this plot first time, need to make not update
+			if(typeof(last) === 'undefined'){
+				updatingMap.set(plotname,false);
+				return makeplot(plotname);
+			}
 			
 			var command = `select time,data->'${trace}' as val from monitoring where device='GAD' and time>'${last.valueOf()}' order by time desc LIMIT ${numrows}`;
 			
+			// 1d plot
+			if(plotname==='1d_absorbances'){
+				//let tracename = (Number(trace)<300) ? 'absorbance_275_A' : 'absorbance_White';
+				let tracename = (Number(trace)<300) ? 'g_abs_bgrem' : 'absorbance_White';
+				const index = indexMap.get(trace);
+				command = `select time,data->'fY'->>${index} as val from rootplots where name='${tracename}' and time>'${last.valueOf()}' order by time desc LIMIT ${numrows}`;
+			}
+			
+			if(plotname==='1d_absorbances') console.log(`submitting query '${command}'`);
 			const resultstring = await GetPSQL(command);
+			if(plotname==='1d_absorbances') console.log(`response '${resultstring}'`);
 			if(resultstring.trim()===''){
 				// no new data
 				continue;
@@ -357,11 +409,18 @@ async function makerootplot(plotname){
 		return;
 	}
 	
-	// get the div
+	// get the graph div
 	const graphdiv = document.getElementById(plotname);
 	if(!graphdiv){
 		console.error("Uknown plot "+plotname);
 		return;
+	}
+	
+	// get the timestamp label div
+	const timediv = document.getElementById(`${plotname}_time`);
+	if(!timediv){
+		// add a timestamp for last trace but don't bother repeating it for absorbance, no need
+		//console.error(`Can't find timediv for plot ${plotname}`);
 	}
 	
 	// fetch the set of traces to plot
@@ -382,7 +441,7 @@ async function makerootplot(plotname){
 			
 			//trace = trace.trim();
 			
-			const command = `select data, draw_options from rootplots where name='${trace}' order by time desc limit 1`;
+			const command = `select time, data, draw_options from rootplots where name='${trace}' and time >= now() - INTERVAL '5 days' order by time desc limit 1`;
 			const resultstring = await GetPSQL(command);
 			//console.log("ROOT resultstring was:");
 			//console.log(resultstring);
@@ -392,12 +451,21 @@ async function makerootplot(plotname){
 			let result = parse(resultstring);
 			
 			// extract elements
+			var timejson = result[0].time;
 			var graphjson = result[0].data;
 			var drawoptions = result[0].draw_options;
 			
+			//console.log(`timejson for plot ${trace} was ${timejson}`);
 			//console.log(`data for trace '${trace}' was:`);
 			//console.log(graphjson);
 			//console.log(`draw_options are '${drawoptions}`);
+			
+			// we'll keep overwriting this with each trace
+			// but that's fine, any of them will do
+			timejson = timejson.substring(0,16);
+			if(timediv){
+				timediv.value=timejson;
+			}
 			
 			// draw  (FIXME can we use 'redraw' for updates?)
 			// by default this overlays so is somewhat like 'same' draw option
@@ -442,7 +510,17 @@ async function makerootplot(plotname){
 			if(plotname==='last_absorbance'){ // FIXME bad hack, ugh
 				// set initial y zoom
 				layout.yaxis.autorange = false;
-				layout.yaxis.range=[0.85, 1.05];
+				layout.yaxis.range=[0.2, 1.2]; // 1.1, 1.7
+			} else if(plotname.substring(0,6)==='gd_abs'){
+				// zoom to ROI
+				layout.yaxis.autorange = true;
+				layout.xaxis.autorange = false;
+				layout.xaxis.range=[265, 285];
+			} else if(plotname==='g_bg'){
+				// zoom to ROI
+				layout.yaxis.autorange = true;
+				layout.xaxis.autorange = false;
+				layout.xaxis.range=[265, 285];
 			}
 			layoutMap.set(plotname, layout);
 		}
@@ -489,7 +567,7 @@ async function makeheatmap(plotname){
 	let numrows = document.getElementById("historyLength").value;
 	if(numrows <= 0) numrows = 200;
 	
-	const downselect = " AND version % 10 = 0"; // to increase history length without having to plot excessive data
+	const downselect = ""; //" AND version % 10 = 0"; // to increase history length without having to plot excessive data
 	
 	let data = [];
 	let wlarr;
@@ -507,7 +585,7 @@ async function makeheatmap(plotname){
 			// only get the wavelength array the first time
 			if(typeof(wlarr)==='undefined'){
 				
-				const command = `select data->'fX' as wlarr from rootplots where name='${trace}' ${downselect} order by time desc limit 1`;
+				const command = `select data->'fX' as wlarr from rootplots where name='${trace}' order by time desc limit 1`;
 				const resultstring = await GetPSQL(command);
 				
 				// convert to JSON Object
@@ -527,7 +605,8 @@ async function makeheatmap(plotname){
 				last=lastupdates.get(plotname+':'+trace);
 				command = `select time from rootplots where name='${trace}' ${downselect} and time>'${last.valueOf()}' order by time desc LIMIT ${numrows}`;
 			} else {
-				command = `select time from rootplots where name='${trace}' ${downselect} order by time desc LIMIT ${numrows}`;
+				command = `select time from rootplots where name='${trace}' ${downselect} and time >= now() - INTERVAL '5 days' order by time desc LIMIT ${numrows}`;
+				//command = `select time from rootplots where name='${trace}' ${downselect} and time>'2025-01-04' order by time desc`;
 			}
 			let resultstring = await GetPSQL(command);
 			if(resultstring.trim()===''){
@@ -561,7 +640,8 @@ async function makeheatmap(plotname){
 			if(typeof(last)!=='undefined'){
 				command = `select data->'fY' as abs from rootplots where name='${trace}' ${downselect} and time>'${last.valueOf()}' order by time desc LIMIT ${numrows}`;
 			} else {
-				command = `select data->'fY' as abs from rootplots where name='${trace}' ${downselect} order by time desc LIMIT ${numrows}`;
+				command = `select data->'fY' as abs from rootplots where name='${trace}' ${downselect} and time >= now() - INTERVAL '5 days' order by time desc LIMIT ${numrows}`;
+				//command = `select data->'fY' as abs from rootplots where name='${trace}' ${downselect} and time>'2025-01-04' order by time desc`;
 			}
 			resultstring = await GetPSQL(command);
 			
@@ -623,9 +703,9 @@ async function makeheatmap(plotname){
 		}
 		
 		// force zoom of z axis. For some reason we do this on the data not the layout???
-		//data[0].zauto = false;
-		data[0].zmin=0.8;
-		data[0].zmax=1.1;
+		data[0].zauto = false;
+		data[0].zmin=0.2; // 1.1
+		data[0].zmax=1.4; // 1.7
 		// likewise colour palette
 		data[0].autocolorscale = false; // do not use default colour palette
 		data[0].colorscale = 'YlGnBu'; // Blues, Cividis, Viridis, Hot, Jet, Greens, Portland... etc

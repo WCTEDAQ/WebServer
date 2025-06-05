@@ -32,10 +32,18 @@ function GetDeviceConfigs() {
 }
 
 function addDeviceConfig() {
-    const device = document.getElementById("device").value;
-    const author = document.getElementById("author").value;
-    const description = document.getElementById("description").value;
-    const data = document.getElementById("data").value;
+    let device = document.getElementById("device").value;
+    let author = document.getElementById("author").value;
+    let description = document.getElementById("description").value;
+    let data = document.getElementById("data").value;
+    
+    // escape apostraphes as required by sql by doubling them up
+    const reg = new RegExp("'",'g');
+    const rep = "''";
+    device = device.replace(reg,rep);
+    author = author.replace(reg,rep);
+    description = description.replace(reg,rep);
+    data = data.replace(reg,rep);
 
     // Ensure data is in JSON format
     try {
@@ -45,13 +53,14 @@ function addDeviceConfig() {
         return;
     }
 
-    const query = `
-        INSERT INTO device_config (time, device, version, author, description, data)
-        VALUES (now(), '${device}', (select COALESCE(MAX(version)+1,0) FROM device_config WHERE device='${device}'),
-        '${author}', '${description}', '${data}'::jsonb)
-    `;
+    const query = `INSERT INTO device_config (time, device, version, author, description, data) \
+        VALUES (now(), '${device}', (select COALESCE(MAX(version)+1,0) FROM device_config \
+        WHERE device='${device}'), '${author}', '${description}', '${data}'::jsonb)`;
 
     GetPSQLTable(query, "root", "daq", true).then(() => {
+        // Clear the form after successful submission
+        document.getElementById("deviceConfigForm").reset();
+        
         // Refresh the table after adding a new config
         GetDeviceConfigs();
     }).catch(function (error) {

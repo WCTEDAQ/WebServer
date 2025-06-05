@@ -18,7 +18,7 @@
 "use strict";
 
 //import { httpRequest, parse, draw, redraw, resize, toJSON, cleanup } from 'https://root.cern/js/latest/modules/main.mjs';
-import * as JSROOT from 'https://root.cern/js/latest/modules/main.mjs';
+//import * as JSROOT from '/includes/main.mjs';
 
 /*
 function ResolveVariable(variable){

@@ -112,13 +112,13 @@ function GetAlarms(arg=false){
 
 
 function SilenceByDeviceName(){
-	const devName = document.getElementById("deviceNameSilence").value;
-	if(devName =="") return;
-	
-	GetPSQLTable(`update alarms set silenced=1 where device='${devName}'`, "root", "daq", false);
-	
-	// update alarms table
-	GetAlarms();
+    const devName = document.getElementById("deviceNameSilence").value;
+    if(devName =="") return;
+    //alert(`update alarms set silenced=1 where device like'${devName}%'`);	
+    GetPSQLTable(`update alarms set silenced=1 where device like'%${devName}%'`, "root", "daq", false);
+    
+    // update alarms table
+    GetAlarms();
 }
 
 function Silence(time){

@@ -6,9 +6,6 @@
 	<!--#include virtual="/includes/header.html" -->
 	<!--#include virtual="subheader.html" -->
 	
-	<div id="montabbar" class="mdl-layout__tab-bar mdl-js-ripple-effect is-casting-shadow mdl-js-ripple-effect--ignore-events" data-upgraded=",MaterialRipple">  <!--class="mdl-layout__tab-bar mdl-js-ripple-effect" >-->
-	</div>
-	
 	<!-- ↓ this closes the head and opens the body ↓ -->
 	<!--#include virtual="/includes/drawer.html" -->
 	
@@ -26,17 +23,26 @@
 		<br><br>
 		
 		<div align="center" id="output"></div>
-		<div id="sol_temps"></div>
-		<div id="flow_rate"></div>
+		<!-- <div id="flow_rate"></div> --> 
 		<div id="leak_sense"></div>
+		<div id="sol_temps"></div>
 		<div id="led_intensity"></div>
+		<div id="gd_conc"></div>
+		<label for="last_traces_time">Last Measurement Time: </label>
+		<input id="last_traces_time" type="datetime-local" disabled>
 		<div id="last_traces" style="height:500px;"></div>
 		<div id="last_absorbance" style="height:500px;"></div>
+		<div id="1d_absorbances" style="height:500px;"></div>
+		<div id="g_bg" style="height:500px;"></div>
+		<div id="gd_abs" style="height:500px;"></div>
 		<!-- <div id="absorbance_history" style="height:500px;"></div> -->
 		
-		<div id="absorbance_UV" style="height:500px;"></div>
 		<div id="absorbance_Vis" style="height:500px;"></div>
+		<div id="absorbance_UV" style="height:500px;"></div>
 		<br>
+		
+		<div id="gd_conc2"></div>
+		<div id="gd_abs2" style="height:500px;"></div>
 		
 		</div>
 		

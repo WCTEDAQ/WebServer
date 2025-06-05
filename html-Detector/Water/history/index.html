@@ -44,11 +44,15 @@
                     <option value="Retention Tank">Retention Tank</option>
                     <option value="Leak Detector">Leak Detector</option>
                 </select>
+                <button id="displayPlotButton" class="btn btn-success" disabled>Display Plot</button>
             </div>
         </div>
-        <div class="col-auto align-items-center">
+        <div class="col-auto align-items-center" id="comparePlotsContainer" style="display: none;">
             <div class="d-flex flex-row">
-                <button id="displayPlotButton" class="btn btn-success" disabled>Display Plot</button>
+                <label for="comparePlotTypeSelect" class="form-label">Plot Type:</label>
+                <select id="comparePlotTypeSelect" class="form-select">
+                </select>
+                <button id="comparePlotsButton" class="btn btn-success" disabled>Compare Plots</button>                
             </div>
         </div>
     </div>

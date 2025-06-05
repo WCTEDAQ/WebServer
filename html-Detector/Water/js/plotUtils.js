@@ -31,6 +31,28 @@ function setPlotData(plotConfig, xdata, ydata) {
    }).filter(Boolean); // Filter out null values
 }
 
+function setSubPlotsData(plotConfigs, xdata, ydata) {
+   var data = [];
+
+   plotConfigs.forEach((config, i) => {
+      data = data.concat(setPlotData(config, xdata, ydata));
+   });
+
+   data.forEach((trace, i) => {
+      const yAxis = i > 0 ? `y${i + 1}` : null;
+      if (yAxis) {
+         trace['yaxis'] = yAxis;
+      } else {
+         if ('yaxis' in trace) {
+            delete trace['yaxis'];
+         }
+      }
+      trace['xaxis'] = 'x';
+   });
+
+   return data;
+}
+
 export function makeHistoryPlot(plotConfig, xdata, ydata) {
    if (!(ydata instanceof Map)) {
       console.error("ydata must be a Map.");
@@ -40,7 +62,86 @@ export function makeHistoryPlot(plotConfig, xdata, ydata) {
    //creates the data object in the plot
    plotConfig.data = setPlotData(plotConfig, xdata, ydata);
 
+   plotConfig.layout['height'] = 800;
+
    Plotly.react(plotConfig.graphDiv, plotConfig.data, plotConfig.layout);
+}
+
+export function compareHistoryPlots(plotConfigs, xdata, ydata) {
+   if (!(ydata instanceof Map)) {
+      console.error("ydata must be a Map.");
+      return;
+   }
+
+   // Check if plotConfigs is an Array
+   if (!Array.isArray(plotConfigs)) {
+      console.error('plotConfigs is not an array - cannot retrieve subplots configs.');
+      return;
+   }
+
+   //creates the data object in the plot
+   const data = setSubPlotsData(plotConfigs, xdata, ydata);
+
+   const newLayout = {
+      legend: {traceorder: 'reversed'},
+      grid: {
+         rows: data.length,
+         columns: 1,
+         pattern: 'independent'
+      }
+   };
+   const layoutTitles = [];
+   const yAxes = [];
+
+   plotConfigs.forEach((config, i) => {
+      // Get the layout title
+      layoutTitles.push(config.layout.title.text);
+   });
+
+   // Set layout title
+   newLayout['title'] = {
+      text: `${layoutTitles[0]} vs ${layoutTitles[1]}`,
+      font: { size: 16},
+      yanchor: 'top',
+      xanchor: 'center',
+      y: 0.95, // Adjust this value to move the title down
+      x: 0.5, // Center the title horizontally
+   };
+
+   // Set layout shared xaxis
+   newLayout['xaxis'] = plotConfigs[0].layout.xaxis;
+
+   const hoverLabels = [];
+
+   const step = (1 / data.length).toFixed(2);
+
+   // Set layout yaxes
+   data.forEach((trace, i) => {
+      const yAxisKey = i === 0 ? 'yaxis' : `yaxis${i+1}`;
+      newLayout[yAxisKey] = {
+         domain: i === 0 ? [0, (i + 1) * step] : i === data.length - 1 ? [i * step, 1] : [i * step, (i + 1) * step]
+      }
+      hoverLabels.push(i === 0 ? 'xy' : `xy${i+1}`);
+   });
+
+   // Set the height of the plot
+   newLayout['height'] = data.length * 200;
+
+   // Set hover mode
+   newLayout['hovermode'] = 'x unified';
+   
+   console.log(data);
+   console.log(newLayout);
+   Plotly.react(plotConfigs[0].graphDiv, data, newLayout);
+   
+   const graph = document.getElementById('plot');
+   graph.on('plotly_hover', function(event) {
+      if (event.xvals) {
+          Plotly.Fx.hover(graph, {
+            xval: event.xvals[0]
+          }, hoverLabels);
+      }
+  });
 }
 
 function createSinglePlot(plotConfig, xdata, ydata, now) {

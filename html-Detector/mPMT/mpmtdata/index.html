@@ -1,0 +1,302 @@
+<head>
+    <title>mPMT info page</title>
+    <link rel="stylesheet" href="../css/mpmt.css">
+    <style>
+        div.div_hidden {
+    visibility: hidden;
+}
+
+div.div_notshown {
+    display: none;
+}
+
+div.div_center {
+    margin: 0 auto;
+}
+
+span.infospan {
+    font-weight:bolder;
+    color:darkorange;
+}
+
+    </style>
+</head>
+
+<!--#include virtual="/includes/header.html" -->
+<!--#include virtual="../subheader.html" -->
+<!--#include virtual="/includes/drawer.html" -->
+<div class="mdl-grid form-row" id='control-row'>
+    <div class='mdl-cell mdl-cell--12-col'>
+        <div id="progress_query" class="mdl-progress mdl-js-progress mdl-progress__indeterminate div_hidden div_center"></div>
+    </div>
+</div>
+<span class="infospan">
+The data on this page is queried directly from devices, to lower the impact it is locally cached in your browser.
+</span>
+<div id="lastupdate"></div>
+<input id='btn_execute' type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored field-input" aria-labelledby="datetime-picker-2-label" value='Refresh cache' onclick='dorefresh()'>
+<h4 style="text-align: center;">mPMT version table</h4>
+<div id='mpmttable'></div>
+<h4 style="text-align: center;">mPMT version summary</h4>
+<div id='versionstable'></div>
+<div class="toast-overlay" id="toast-overlay"></div>
+<script src='../js/mpmtcommon.js'></script>
+<script>    
+
+const mpmt_table_columns = ["mPMT","Software version","Firmware version",""];
+const mpmt_versions_table_columns = ["System","Software","Count","mPMTs"];
+
+document.addEventListener("DOMContentLoaded", async function () {
+    rebuildtable();
+});
+
+async function pollone(ip) {
+    command = `getbootinfo`;
+    var body = `ip=${ip}&port=4454&keep=1&raw=1&command=${command}`;
+    h = new Headers()
+    h.append("Content-Type", "application/x-www-form-urlencoded")
+    return ajaxcall({
+        "url": "/cgi-bin/sendcommanduniversal.cgi",
+        "headers": h,
+        "method": "POST",
+        "body": body,
+        "plain": true
+    });
+}
+
+function getBetween(str, startToken, endToken) {
+    const startIndex = str.indexOf(startToken);
+    if (startIndex === -1) return null; // start token not found
+
+    const endIndex = str.indexOf(endToken, startIndex + startToken.length);
+    if (endIndex === -1) return null; // end token not found
+
+    return str.substring(startIndex + startToken.length, endIndex);
+}
+
+function idforcid(cid) {
+    retval = "";
+    mpmts.forEach(element => {
+        if (element['cid']==cid) {
+            retval = element['id'];
+        }
+    });
+    return retval;
+}
+
+function dorefresh() {
+    localStorage.removeItem("mpmt_versions")
+    rebuildtable()
+}
+
+async function rebuildtable() {    
+
+    var versions = {}
+    var mpmtsdata = {}
+    var cached = false;
+
+    if (localStorage.getItem("mpmt_versions") == null) {
+        tryones = []// [9,13,39,51,95]
+        skipones = [2,50,81,110,119]
+        document.getElementById("progress_query").classList.remove('div_hidden');
+        for (var idx in ppmap) {
+            mpmt = ppmap[idx];
+            if (mpmt['mccno']!=-1 && (tryones.includes(mpmt['cid']) || tryones.length==0) && !skipones.includes(mpmt['cid'])) {
+                await pollone(`192.168.10.${mpmt['cid']+100}`).then((value) => {  
+                    if (value!=null) {              
+                        value = getBetween(value,"<body>","<body/>").trim()                    
+                        if (value.startsWith("OK ")) {                        
+                            bootobj = JSON.parse(value.slice(3));
+                            bootobj["cid"] = mpmt['cid']
+                            mpmtsdata[mpmt['cid']] = bootobj
+                            va = ""
+                            if ('boot_app_version' in bootobj && 'boot_app_version_generated' in bootobj) {
+                                va = bootobj["boot_app_version"] + ", " + bootobj["boot_app_version_generated"]
+                            }
+                            vs = ""
+                            if ("boot_system_version" in bootobj && "boot_system_build" in bootobj) {
+                                vs = bootobj["boot_system_version"] + ", " + bootobj["boot_system_build"]
+                            }
+                            vc = vs+":"+va
+                            if (vc in versions) {
+                                versions[vc]['mpmts'].push(idforcid(mpmt['cid']));
+                            } else {
+                                versions[vc] = {
+                                    'va': va,
+                                    'vs': vs,
+                                    'mpmts': [idforcid(mpmt['cid'])]
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        lastcheck = new Date().toLocaleString();
+        d = {
+            'data': mpmtsdata,
+            'versions': versions,
+            'timestamp': lastcheck
+        }
+        localStorage.setItem("mpmt_versions",JSON.stringify(d));
+    } else {
+        d = JSON.parse(localStorage.getItem("mpmt_versions"));
+        mpmtsdata = d['data']
+        versions = d['versions']
+        lastcheck = d['timestamp']
+        cached = true
+    }
+    lu = document.getElementById("lastupdate");
+    while(lu.firstChild) lu.removeChild(lu.lastChild);
+    lu.appendChild(document.createTextNode(
+        `Last update: ${lastcheck}` + (cached? " CACHED": " FRESH")
+    ));
+    
+
+    build_mpmtstable(mpmtsdata);
+    build_versionstable(versions);
+    document.getElementById("progress_query").classList.add('div_hidden');
+}
+
+function twoline(a,b) {
+  so = document.createElement("span")
+  so.appendChild(document.createTextNode(a))
+  so.appendChild(document.createElement("br"))
+  so.appendChild(document.createTextNode(b))
+  return so
+}
+
+
+async function build_mpmtstable(mpmtsdata) {
+    rootel = document.getElementById("mpmttable");
+    t = document.createElement("table");
+    t.classList.add('mpmttable')
+    th = document.createElement("thead");
+    mpmt_table_columns.forEach(element => {
+        el = document.createElement("th");
+        tx = document.createTextNode(element);
+        el.appendChild(tx);
+        th.appendChild(el);
+    });
+    
+    tb = document.createElement("tbody");
+    filtered = mpmts.filter((a)=>'cid' in a && a['cid']>0);
+    filtered.sort((a,b) => a.cid - b.cid);
+    filtered.forEach((element) => {
+        bootdata =  element['cid'] in mpmtsdata ? mpmtsdata[element['cid']]: null;
+        r = document.createElement("tr");
+        id = document.createElement("td");
+        id.appendChild(document.createTextNode(idforcid(element['cid'])));
+        r.appendChild(id);
+        
+        sta = document.createElement("td");
+        if (bootdata) {
+            if ('boot_app_version' in bootdata && 'boot_app_version_generated' in bootdata) {
+                sta.appendChild(twoline(bootdata["boot_app_version"],bootdata["boot_app_version_generated"]))
+            }
+        } else
+            sta.appendChild(document.createTextNode(""));
+        r.appendChild(sta);
+
+        sta = document.createElement("td");
+        if (bootdata) {
+            if ("boot_system_version" in bootdata && "boot_system_build" in bootdata) {
+                sta.appendChild(twoline(bootdata["boot_system_version"],bootdata["boot_system_build"]))
+            }
+        } else
+            sta.appendChild(document.createTextNode(""));
+        r.appendChild(sta);
+
+        sta = document.createElement("td");
+        sta.appendChild(document.createTextNode(""));
+        r.appendChild(sta);
+
+        if (!bootdata) {
+            r.classList.add('grayback');
+        }
+        tb.appendChild(r);
+    });
+    tf = document.createElement("tfoot");
+    tfr = document.createElement("tr");
+    colcnt = 0;
+    mpmt_table_columns.forEach(element => {        
+        col = document.createElement("td");
+        col.appendChild(document.createTextNode(" "));
+        tfr.appendChild(col);
+        colcnt++;
+    });
+    tf.appendChild(tfr);
+
+    t.appendChild(th);
+    t.appendChild(tb);
+    t.appendChild(tf);
+    rootel.appendChild(t);
+}
+
+function build_versionstable(versions) {
+    rootel = document.getElementById("versionstable");
+    while(rootel.firstChild) rootel.removeChild(rootel.lastChild);
+    t = document.createElement("table");
+    t.classList.add('mpmttable')
+    th = document.createElement("thead");
+    mpmt_versions_table_columns.forEach(element => {
+        el = document.createElement("th");
+        tx = document.createTextNode(element);
+        el.appendChild(tx);
+        th.appendChild(el);
+    });
+    
+    tb = document.createElement("tbody");
+    n = []
+    for (var key in versions) {
+        if (versions.hasOwnProperty(key)) {
+            n.push(key);            
+        }
+    }
+    n.sort();
+
+    for (var key of n) {
+        vv = versions[key]
+        if (vv['mpmts'].length>0) {
+            r = document.createElement("tr");
+                id = document.createElement("td");
+                tx = document.createTextNode(vv['vs']);
+                id.appendChild(tx);
+            r.appendChild(id);
+                id = document.createElement("td");
+                tx = document.createTextNode(vv['va']);
+                id.appendChild(tx);
+            r.appendChild(id);
+                id = document.createElement("td");            
+                tx = document.createTextNode(`${vv['mpmts'].length}`);
+                id.appendChild(tx);
+            r.appendChild(id);
+                id = document.createElement("td");
+                id.classList.add('wrap');
+                tx = document.createTextNode(vv['mpmts'].join(", "));
+                id.appendChild(tx);
+            r.appendChild(id);
+            tb.appendChild(r);        
+        }
+    };
+
+    tf = document.createElement("tfoot");
+    tfr = document.createElement("tr");
+    colcnt = 0;
+    mpmt_versions_table_columns.forEach(element => {        
+        col = document.createElement("td");
+        tfr.appendChild(col);
+        colcnt++;
+    });
+    tf.appendChild(tfr);
+
+
+    t.appendChild(th);
+    t.appendChild(tb);
+    t.appendChild(tf);
+    rootel.appendChild(t);
+}
+
+</script>
+
+<!--#include virtual="/includes/footer.html" -->

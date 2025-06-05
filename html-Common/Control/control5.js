@@ -232,7 +232,7 @@ send_button.addEventListener('click', function() {  ///send a command if send co
 	} 
 	else{
 	    for(var i=1; i<table.rows.length; i++){
-		if (table.rows[i].cells[3].innerText== groupbox.value){
+		if (table.rows[i].cells[3].innerText.match(groupbox.value) == groupbox.value){
 		    var item=table.rows[i].cells[0].innerText;
 		    item=item.replace("[","");
 		    item=item.replace("]","");
@@ -244,13 +244,11 @@ send_button.addEventListener('click', function() {  ///send a command if send co
 	list.map(function(item) {
 	    select.selectedIndex=item;
 	    sendcommand2(); 
-	    // below not working ben need to fix
-	    text+=command_output.InnerText;
-	    command_output.InnerText=text;
+	    text+=command_output.innerHTML;
 	    
-	});
-	
+	});	
 	select.selectedIndex=select.length -1;
+	command_output.innerHTML=text;
     }
     
 });

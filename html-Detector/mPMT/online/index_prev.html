@@ -1,0 +1,921 @@
+<head>
+<title>mPMT status page</title>
+
+<style>
+    #mpmt-svg-symbols{
+        display: none;
+    }
+table.mpmttable {
+  border: 1px solid #3F51B5;
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+}
+table.mpmttable td, table.mpmttable th {
+  border: 1px solid #AAAAAA;
+  padding: 3px 2px;
+}
+table.mpmttable tbody td {
+  font-size: 14px;
+}
+
+table.mpmttable tbody tr.redback {
+    background-color: #F2CCCC;
+}
+table.mpmttable tbody tr.grayback {
+    background-color: #d4d4d4;
+}
+
+table.mpmttable tbody tr.staleback {
+    background-color: #ffb8e5;
+}
+
+
+table.mpmttable thead {
+  background: #3F51B5;
+  border-bottom: 2px solid #444444;
+}
+table.mpmttable thead th {
+  font-size: 15px;
+  font-weight: bold;
+  color: #FFFFFF;
+  border-left: 2px solid #D0E4F5;
+  white-space: nowrap; 
+}
+table.mpmttable thead th:first-child {
+  border-left: none;
+}
+
+table.mpmttable tfoot {
+  font-size: 14px;
+  font-weight: bold;
+  color: #FFFFFF;
+  background: #B6C1FF;
+  border-top: 2px solid #444444;
+}
+table.mpmttable tfoot td {
+  font-size: 14px;
+}
+table.mpmttable tfoot .links {
+  text-align: right;
+}
+table.mpmttable tfoot .links a{
+  display: inline-block;
+  background: #3F51B5;
+  color: #FFFFFF;
+  padding: 2px 8px;
+  border-radius: 5px;
+}
+
+table.mpmttable tbody td { 
+    white-space: nowrap; 
+}
+
+table.mpmttable tbody td.wrap { 
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal; 
+}
+
+table.mpmttable th:last-child { 
+    width: 100%; 
+}
+
+span.mpmtred {
+    color: red;
+}
+
+span.mpmtgreen {
+    color: darkgreen;
+}
+
+span.mpmtgray {
+    color: #222222;
+}
+
+span.mpmtblack {
+    color: #000000;
+}
+
+div.pmtfont {
+    font-size: x-large;
+    white-space: nowrap;
+}
+
+input.mpmtgroupcheck {
+    height: 1.5em;
+    width: 1.5em;
+}
+
+.tooltip-no-underline {
+    border-bottom: none;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+.toast {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    max-width: 300px;
+    background: #fff;
+    padding: 0.5rem;
+    border-radius: 4px;
+    box-shadow: -1px 1px 10px
+        rgba(0, 0, 0, 0.3);
+    z-index: 1023;
+    animation: slideInRight 0.3s
+            ease-in-out forwards,
+        fadeOut 0.5s ease-in-out
+            forwards 2s;
+    transform: translateX(110%);
+}
+
+.toast.closing {
+    animation: slideOutRight 0.5s
+        ease-in-out forwards;
+}
+
+.toast-progress {
+    position: absolute;
+    display: block;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    width: 100%;
+    background: #b7b7b7;
+    animation: toastProgress 1.5s
+        ease-in-out forwards;
+}
+
+.toast-content-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.toast-icon {
+    padding: 0.35rem 0.5rem;
+    font-size: 1.5rem;
+}
+
+.toast-message {
+    flex: 1;
+    font-size: 0.9rem;
+    color: #000000;
+    padding: 0.5rem;
+}
+
+.toast.toast-success {
+    background: #95eab8;
+}
+
+.toast.toast-success .toast-progress {
+    background-color: #2ecc71;
+}
+
+.toast.toast-danger {
+    background: #efaca5;
+}
+
+.toast.toast-danger .toast-progress {
+    background-color: #e74c3c;
+}
+
+.toast.toast-info {
+    background: #bddaed;
+}
+
+.toast.toast-info .toast-progress {
+    background-color: #3498db;
+}
+
+.toast.toast-warning {
+    background: #ead994;
+}
+
+.toast.toast-warning .toast-progress {
+    background-color: #f1c40f;
+}
+
+@keyframes slideInRight {
+    0% {
+        transform: translateX(110%);
+    }
+
+    75% {
+        transform: translateX(-10%);
+    }
+
+    100% {
+        transform: translateX(0%);
+    }
+}
+
+@keyframes slideOutRight {
+    0% {
+        transform: translateX(0%);
+    }
+
+    25% {
+        transform: translateX(-10%);
+    }
+
+    100% {
+        transform: translateX(110%);
+    }
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes toastProgress {
+    0% {
+        width: 100%;
+    }
+
+    100% {
+        width: 0%;
+    }
+}
+
+
+    </style>
+    <svg id="mpmt-svg-symbols" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="mpmt-circle-red" viewBox="0 0 16 16"  width="16" height="16">
+        <circle
+       style="fill:#ff0000;fill-opacity:1;stroke:#ea331b;stroke-width:0.244834"
+       id="path184"
+       cx="3.6016788"
+       cy="3.5093286"
+       r="2.5612018" />
+    </symbol>
+    </svg>
+
+</head>
+
+<!--#include virtual="/includes/header.html" -->
+<!--#include virtual="../subheader.html" -->
+<!--#include virtual="/includes/drawer.html" -->
+<h4 style="text-align: center;">mPMT online status summary table</h4>
+<div>Legend: <span class='mpmtred'>&#x2611; - PMT with <b>HV ON</b></span>; 
+<span style="color: darkgreen;">&#x2610; - PMT with HV OFF</span>; 
+<span style="color: black;">&#x2612; - PMT DISABLED</span></div>
+<div id="lastupdate"></div>
+<div id='mpmttable'></div>
+<h4 style="text-align: center;">mPMT versions summary</h4>
+<div id='versionstable'></div>
+<div class="toast-overlay" id="toast-overlay"></div>
+<script src='../js/mpmtcommon.js'></script>
+<script>
+
+var localcontext = {}
+
+const mpmt_status_table_columns = ["ID","Report age","HV_ON","HV operation","Clock status","Boot clock","Boot opening","Boot config","Config","Load","Ver. app","Ver. system","Comment",""];
+const mpmt_versions_table_columns = ["System","Software","Count","mPMTs"];
+
+const showToast = (
+    message = "Sample Message",
+    toastType = "info",
+    duration = 5000) => {
+    //if (
+    //    !Object.keys(icon).includes(toastType))
+    //    toastType = "info";
+
+    let box = document.createElement("div");
+    box.classList.add(
+        "toast", `toast-${toastType}`);
+    box.innerHTML = ` <div class="toast-content-wrapper">                      
+                      <div class="toast-message">${message}</div>
+                      <div class="toast-progress"></div>
+                      </div>`;
+    duration = duration || 5000;
+    box.querySelector(".toast-progress").style.animationDuration =
+            `${duration / 1000}s`;
+
+    let toastAlready = 
+        document.body.querySelector(".toast");
+    if (toastAlready) {
+        toastAlready.remove();
+    }
+
+    document.body.appendChild(box)};
+
+
+function estimate_tooltip_width(text) {
+    // by-hand estimation for now
+    return Math.max(120,text.length*10);
+}
+
+function element_with_tooltip_element(element,tooltiptext) {
+    ag = document.createElement("div");
+    ag.appendChild(element);
+    if (tooltiptext.length>0) {
+        ag.classList.add("tooltip");
+        s = document.createElement("span");
+        s.classList.add("tooltiptext");   
+        s.style.width = estimate_tooltip_width(tooltiptext);
+        s.appendChild(document.createTextNode(tooltiptext));
+        ag.appendChild(s);
+    }
+    return ag;
+}
+
+function element_with_tooltip(text,tooltiptext) {
+    return element_with_tooltip_element(document.createTextNode(text),tooltiptext);
+}
+
+
+function sendHVCommand(btn,enable,cid,ip,port) {
+    if (enable)
+        command = "HV_ON";
+    else
+        command = "HV_OFF";
+    var body = `ip=${ip}&port=${port}&command=${command}`;
+    h = new Headers()
+    h.append("Content-Type", "application/x-www-form-urlencoded")
+    return ajaxcall({
+        "url": "/cgi-bin/sendcommand2nopadding.cgi",
+        "headers": h,
+        "method": "POST",
+        "body": body
+    });
+}
+
+function sendLoadConfig(sel,ip) {
+    
+    cfgid = sel.options[sel.selectedIndex].value;
+    command = `loadconfig%20${cfgid}`;
+    var body = `ip=${ip}&port=4454&keep=1&raw=1&command=${command}`;
+    h = new Headers()
+    h.append("Content-Type", "application/x-www-form-urlencoded")
+    return ajaxcall({
+        "url": "/cgi-bin/sendcommanduniversal.cgi",
+        "headers": h,
+        "method": "POST",
+        "body": body
+    }).then(
+        showToast("Command sent","info",2000)
+    );
+    //alert("WIP...")
+}
+
+
+function update_group_buttons() {
+    el = document.getElementsByName("mpmtgroup")
+    localcontext['mpmtgroupchecks'] = []
+    ret = false;
+    if (el.length) {
+        el.forEach((a) => {
+            if (a.checked) {
+                localcontext['mpmtgroupchecks'].push(a.id);
+                ret = true;
+            }
+        })
+    }
+    el = document.getElementById("mpmtgroupoff")
+    if (el)
+        el.disabled = !ret;
+    el = document.getElementById("mpmtgroupon")
+    if (el)
+        el.disabled = !ret;
+}
+
+
+var versions = {};
+
+function build_table_row(rowdata,edata,devdata) {
+
+    var sp = function(text,color,tooltip) {
+        e = document.createElement("span")
+        e.appendChild(document.createTextNode(text));
+        e.classList.add(color);
+        return e;
+        // for the tooltips we need to figure out wrap issue
+        //return element_with_tooltip_element(e,tooltip);
+    }
+    
+
+    const hasData = edata.length>0
+    var thisrow = {}
+    if (hasData)
+        thisrow = edata[0];
+    r = document.createElement("tr");
+    id = document.createElement("td");
+    nettext = ""
+    if ('net' in thisrow) {
+        nettext = `${thisrow['net']['ip']}:${thisrow['net']['port']}`
+    }
+    id.appendChild(element_with_tooltip(rowdata['id'],nettext));
+    r.appendChild(id);
+
+    var old_age = false;
+    da = document.createElement("td");
+    if (hasData) {
+        const age = (Date.parse(new Date()) - Date.parse(thisrow['time']))/1000;        
+        ttext = thisrow['time'].substr(0,19).replace("T"," ");
+        da.appendChild(element_with_tooltip(`${age} s`,ttext));
+        if (age>60)
+            old_age = true;
+    }
+    r.appendChild(da);
+
+    s = document.createElement("div");
+    s.classList.add("pmtfont");    
+    var hvon = false;
+    var anyenabled = false;
+    var anyhvoff = false;
+    if (hasData) {
+        for (i=0;i<20;i++) {
+            if (`pmt${i}_status1` in thisrow['data']) {
+                v = thisrow['data'][`pmt${i}_status1`];
+                if (v&3 == 3) {
+                    hvon = true;
+                    s.appendChild(sp("\u2611",'mpmtred',""));
+                } else {
+                    anyhvoff = true;
+                    s.appendChild(sp("\u2610",'mpmtgreen',""));
+                }
+                anyenabled = true;
+            } else {
+                s.appendChild(sp("\u2612",'mpmtgray',""));
+            }
+        }
+    }    
+    sta = document.createElement("td");
+    sta.appendChild(s);
+    r.appendChild(sta);
+
+    s = document.createElement("div");
+    s.classList.add("pmtfont");
+    if ('net' in thisrow) {
+        btnOn = document.createElement("button");
+        btnOn.appendChild(document.createTextNode("On"));
+        btnOn.id = `mpmtbtnon${rowdata['cid']}`;
+        btnOn.disabled=!anyenabled || hvon && !anyhvoff;
+        btnOn.addEventListener('click',sendHVCommand.bind(this,btnOn,true,rowdata['cid'],thisrow['net']['ip'],thisrow['net']['port']));
+        
+        btnOff = document.createElement("button");
+        btnOff.appendChild(document.createTextNode("Off"));
+        btnOff.id = `mpmtbtnoff${rowdata['cid']}`;        
+        btnOff.disabled=!anyenabled || !hvon;
+        btnOff.addEventListener('click',sendHVCommand.bind(this,btnOff,false,rowdata['cid'],thisrow['net']['ip'],thisrow['net']['port']));
+        
+        s.appendChild(btnOn);
+        s.appendChild(btnOff);      
+        rowcheck = document.createElement("input");
+        rowcheck.type = 'checkbox';
+        rowcheck.name = 'mpmtgroup';
+        rowcheck.value = rowdata['cid'];
+        rowcheck.id = `mpmtgroup${rowdata['cid']}`;
+        rowcheck.classList.add('mpmtgroupcheck');
+        rowcheck.setAttribute("data-cid",rowdata['cid']);
+        rowcheck.setAttribute("data-ip",thisrow['net']['ip']);
+        rowcheck.setAttribute("data-port",thisrow['net']['port'])
+        if ('mpmtgroupchecks' in localcontext) {
+            if (localcontext['mpmtgroupchecks'].find((a) => a == rowcheck.id))
+                rowcheck.checked = true;
+        }
+        rowcheck.addEventListener('click', update_group_buttons);
+        s.appendChild(rowcheck);
+    }
+
+    sta = document.createElement("td");
+    sta.appendChild(s);
+    r.appendChild(sta);
+
+    sta = document.createElement("td");
+    if (hasData && 'brb_clk_cleaner_status' in thisrow['data']) {
+        val = thisrow['data']['brb_clk_cleaner_status']
+        str = []
+        if ((val & 0x08) == 0) {
+            str.push("Locked")
+        }
+        if ((val & 0x04) == 0) {
+            str.push("Clk0")
+        }
+        if ((val & 0x02) == 0) {
+            str.push("Clk1")
+        }
+        if ((val & 0x01) == 1) {
+            str.push("Holdoff")
+        }
+        s = sp(str.join(","),((val & 0x08) != 0)?'mpmtred':'mpmtblack',"");
+    } else {
+        s = document.createTextNode("");
+    }
+    sta.appendChild(s);
+    r.appendChild(sta);
+
+    sta = document.createElement("td");
+    s = undefined;
+    if (hasData && 'boot' in thisrow) {
+        ok = true
+        ttext = thisrow['boot']['time'].substr(0,19).replace("T"," ");
+        if ('boot_auto_clocks_ok' in thisrow['boot']) {
+            v = thisrow['boot']['boot_auto_clocks_ok']
+            if (v==1) {
+                s = sp("OK",'mpmtblack',ttext);
+            } else {
+                s = sp("NOT OK",'mpmtred',ttext);
+                ok = false
+            }
+        }        
+        if ('boot_measured_clock_freq' in thisrow['boot']) {
+            v = thisrow['boot']['boot_measured_clock_freq']
+            s1 = sp(v,ok?'mpmtblack':'mpmtred',"")
+            if (s === undefined) 
+                s = s1;
+            else {
+                so = document.createElement("span")
+                so.appendChild(s)
+                so.appendChild(document.createElement("br"))
+                so.appendChild(s1)
+                s = so
+            }
+        }
+    }
+    if (s === undefined) {
+        s = document.createTextNode("");
+    }
+    sta.appendChild(s);
+    r.appendChild(sta);
+
+    sta = document.createElement("td");
+    s = undefined;
+    if (hasData && 'boot' in thisrow) {
+        boot_ok_done = false
+        if ('boot_clock_optimize_enabled' in thisrow['boot']) {
+            if (thisrow['boot']['boot_clock_optimize_enabled']==0) {
+                s = sp("OK (ID)",'mpmtblack',"");
+                boot_ok_done = true;
+            }
+        }
+        if (('boot_clock_zero_opening' in thisrow['boot']) && !boot_ok_done) {
+            v = thisrow['boot']['boot_clock_zero_opening']
+            if (v==0) {
+                s = sp("OK",'mpmtblack',"");
+            } else {
+                s = sp("NOT OK",'mpmtred',"");
+            }
+        }
+    }
+    if (s === undefined) {
+        s = document.createTextNode("");
+    }
+    sta.appendChild(s);
+    r.appendChild(sta);
+
+
+    sta = document.createElement("td");
+    s = undefined;
+    if (hasData && 'boot' in thisrow) {
+        if ('boot_got_config' in thisrow['boot']) {
+            v = thisrow['boot']['boot_got_config']
+            if (v==1) {
+                s = sp("YES",'mpmtblack',"");
+            } else {
+                s = sp("NO",'mpmtred',"");
+            }
+        }
+    }
+    if (s === undefined) {
+        s = document.createTextNode("");
+    }
+    sta.appendChild(s);
+    r.appendChild(sta);
+
+    sta = document.createElement("td");
+    linecb = undefined
+    if (hasData && 'cfgs' in thisrow) {
+        cb = document.createElement("select")
+        cb.id = "version_"+rowdata['id']
+        cb.name = "version_select"
+        linecb = cb
+        if ('version' in thisrow['cfgs']) {
+            thisrow['cfgs'].version.sort((a, b) => b.version>a.version).map((a) => {
+                o = document.createElement("option")
+                o.value = a.version
+                st = a.description.replace(/(.{24})..+/, "$1...");
+                o.innerText = `${a.version} - ${st}`                
+                cb.appendChild(o)
+                cb.addEventListener('change', function (e) {
+                    cb.title = cb.value;
+                });
+            })
+        }
+        
+        sta.appendChild(cb)
+        sta.appendChild(document.createTextNode(""));    
+    }
+    sta.appendChild(document.createTextNode(""));
+    r.appendChild(sta);
+
+    sta = document.createElement("td");
+    if (hasData && 'cfgs' in thisrow && 'net' in thisrow) {
+        btnLoad = document.createElement("button");
+        btnLoad.appendChild(document.createTextNode("Load"));
+        btnLoad.id = `mpmtbtnload${rowdata['cid']}`;
+        btnLoad.addEventListener('click',sendLoadConfig.bind(this,linecb,thisrow['net']['ip']));
+        sta.appendChild(btnLoad)
+    }
+    sta.appendChild(document.createTextNode(""));
+    r.appendChild(sta);
+
+    va = ""
+    sta = document.createElement("td");
+    if (hasData && 'boot' in thisrow) {
+        if ('boot_app_version' in thisrow['boot'] && 'boot_app_version_generated' in thisrow['boot']) {
+            sta.appendChild(twoline(thisrow['boot']["boot_app_version"],thisrow['boot']["boot_app_version_generated"]))
+            va = thisrow['boot']["boot_app_version"] + ", " + thisrow['boot']["boot_app_version_generated"]
+        }
+    } else
+        sta.appendChild(document.createTextNode(""));
+    r.appendChild(sta);
+
+    vs = ""
+    sta = document.createElement("td");
+    if (hasData && 'boot' in thisrow) {
+        if ("boot_system_version" in thisrow['boot'] && "boot_system_build" in thisrow['boot']) {
+            sta.appendChild(twoline(thisrow['boot']["boot_system_version"],thisrow['boot']["boot_system_build"]))
+            vs = thisrow['boot']["boot_system_version"] + ", " + thisrow['boot']["boot_system_build"]
+        }
+    } else
+        sta.appendChild(document.createTextNode(""));
+    r.appendChild(sta);
+
+    vc = vs+":"+va
+    if (vc in versions) {
+        versions[vc]['mpmts'].push(rowdata['id']);
+    } else {
+        versions[vc] = {
+            'va': va,
+            'vs': vs,
+            'mpmts': [rowdata['id']]
+        }
+    }
+    
+    sta = document.createElement("td");
+    if (rowdata["comment"]) {
+        sta.appendChild(document.createTextNode(rowdata["comment"]));
+    } else {
+        sta.appendChild(document.createTextNode(""));
+    }
+    r.appendChild(sta);
+    
+    sta = document.createElement("td");
+    sta.appendChild(document.createTextNode(""));
+    r.appendChild(sta);
+    if (old_age) {
+        r.classList.add('staleback');
+    } else {
+
+        if (hvon) {
+            r.classList.add('redback');
+        }
+    }
+    if (!hasData) {
+        r.classList.add('grayback');
+    }
+
+    
+
+    return r;
+}
+
+function find_in_devdata_by_id(devdata,reqid) {
+    n = devdata.filter((a) => {
+            if ('device' in a && a['device'].substr(1,3)=="PMT") {
+                id = parseInt(a['device'].substr(4))
+                return id == reqid;
+            }
+            return false;
+    })
+    return n;
+}
+
+function build_table(data,devdata,bootdata,cfgs) {
+    rootel = document.getElementById("mpmttable");
+    t = document.createElement("table");
+    t.classList.add('mpmttable')
+    th = document.createElement("thead");
+    mpmt_status_table_columns.forEach(element => {
+        el = document.createElement("th");
+        tx = document.createTextNode(element);
+        el.appendChild(tx);
+        th.appendChild(el);
+    });
+    
+    tb = document.createElement("tbody");
+
+    
+
+    // build body
+    filtered = mpmts.filter((a)=>'cid' in a && a['cid']>0);
+    filtered.sort((a,b) => a.cid - b.cid);
+    filtered.forEach((element) => {
+        edata = data.filter((a) => {
+            if ('device' in a && a['device'].substr(1,3)=="PMT") {
+                id = parseInt(a['device'].substr(4))
+                return id == element['cid'];
+            }
+            return false;
+        })
+        netdata = find_in_devdata_by_id(devdata,element['cid']);
+        bootinfo = find_in_devdata_by_id(bootdata,element['cid']);
+        config = find_in_devdata_by_id(cfgs,element['cid']);        
+        if (netdata.length>0 && edata.length>0)
+            edata[0]['net'] = netdata[0];
+        if (bootinfo.length>0 && edata.length>0) {
+            edata[0]['boot'] = bootinfo[0]['data'];        
+            edata[0]['boot']['time'] = bootinfo[0]['time'];
+        }
+        if (config.length>0 && edata.length>0) {
+            edata[0]['cfgs'] = config[0];
+        }
+        tb.appendChild(build_table_row(element,edata));
+    });
+
+    tf = document.createElement("tfoot");
+    tfr = document.createElement("tr");
+    colcnt = 0;
+    mpmt_status_table_columns.forEach(element => {
+        
+        col = document.createElement("td");
+        if (colcnt==3) {
+            btnOn = document.createElement("button");
+            btnOn.id = 'mpmtgroupon';
+            btnOn.appendChild(document.createTextNode("Group On"));
+            btnOff = document.createElement("button");
+            btnOff.id = 'mpmtgroupoff';
+            btnOff.appendChild(document.createTextNode("Group Off"));
+            col.appendChild(btnOn);
+            col.appendChild(btnOff);
+        }
+
+        tfr.appendChild(col);
+        colcnt++;
+    });
+    tf.appendChild(tfr);
+
+
+    t.appendChild(th);
+    t.appendChild(tb);
+    t.appendChild(tf);
+    rootel.appendChild(t);
+}
+
+async function getStatus() {
+    return getSQLJSON("SELECT DISTINCT ON (device) device,time,data FROM monitoring WHERE device like 'MPMT_%' AND time >= date_trunc('hour', now()) - INTERVAL '1 hour' ORDER BY device,time desc" )
+}
+
+async function getConfigs() {
+    return getSQLJSON("select device,json_agg(json_build_object('version',version,'description',description)) as version from device_config group by device" )
+}
+
+async function rebuildtable() {
+    ret = await getStatus().catch((err) => {
+        console.error(err);
+        return "{}";
+    });
+    devdata = await getCSVJSON();
+    //boot = await getBootInfo();
+    boot = []
+    cfgs = await getConfigs();
+    versions = {};
+    rootel = document.getElementById("mpmttable");
+    while(rootel.firstChild) rootel.removeChild(rootel.lastChild);
+    build_table(ret,devdata,boot,cfgs);
+    lu = document.getElementById("lastupdate");
+    while(lu.firstChild) lu.removeChild(lu.lastChild);
+    updated = new Date().toLocaleString();
+    lu.appendChild(document.createTextNode(
+        `Last update: ${updated}`
+    ));
+    // versions stable
+    build_versionstable();
+ }
+
+ async function mpmttimer() {
+    await rebuildtable();
+    window.setTimeout(mpmttimer, 5000);
+ }
+
+document.addEventListener("DOMContentLoaded", async function () {
+    window.setTimeout(mpmttimer, 5000);
+    rebuildtable();
+});
+
+function build_versionstable() {
+    rootel = document.getElementById("versionstable");
+    while(rootel.firstChild) rootel.removeChild(rootel.lastChild);
+    t = document.createElement("table");
+    t.classList.add('mpmttable')
+    th = document.createElement("thead");
+    mpmt_versions_table_columns.forEach(element => {
+        el = document.createElement("th");
+        tx = document.createTextNode(element);
+        el.appendChild(tx);
+        th.appendChild(el);
+    });
+    
+    tb = document.createElement("tbody");
+    n = []
+    for (var key in versions) {
+        if (versions.hasOwnProperty(key)) {
+            n.push(key);            
+        }
+    }
+    n.sort();
+
+    for (var key of n) {
+        vv = versions[key]
+        if (vv['mpmts'].length>0) {
+            r = document.createElement("tr");
+                id = document.createElement("td");
+                tx = document.createTextNode(vv['vs']);
+                id.appendChild(tx);
+            r.appendChild(id);
+                id = document.createElement("td");
+                tx = document.createTextNode(vv['va']);
+                id.appendChild(tx);
+            r.appendChild(id);
+                id = document.createElement("td");            
+                tx = document.createTextNode(`${vv['mpmts'].length}`);
+                id.appendChild(tx);
+            r.appendChild(id);
+                id = document.createElement("td");
+                id.classList.add('wrap');
+                tx = document.createTextNode(vv['mpmts'].join(", "));
+                id.appendChild(tx);
+            r.appendChild(id);
+            tb.appendChild(r);        
+        }
+    };
+
+    tf = document.createElement("tfoot");
+    tfr = document.createElement("tr");
+    colcnt = 0;
+    mpmt_versions_table_columns.forEach(element => {        
+        col = document.createElement("td");
+        tfr.appendChild(col);
+        colcnt++;
+    });
+    tf.appendChild(tfr);
+
+
+    t.appendChild(th);
+    t.appendChild(tb);
+    t.appendChild(tf);
+    rootel.appendChild(t);
+}
+
+
+
+</script>
+
+<!--#include virtual="/includes/footer.html" -->

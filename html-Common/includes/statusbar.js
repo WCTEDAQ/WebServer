@@ -5,12 +5,14 @@ let user=document.getElementById("user");
 function getTimeInTimezones() {
     // Get the current time in the user's timezone
     usertime.innerText = new Date().toLocaleTimeString(undefined, {
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        // Intl.DateTimeFormat().resolvedOptions().timeZone
+        timeZone: 'UTC'
     });
 
     // Get the time in the defined timezone
     exptime.innerText = new Date().toLocaleTimeString(undefined, {
-        timeZone: "Europe/London"
+        timeZone: "Europe/Zurich"
+        //"Europe/London"
     });
 
 }

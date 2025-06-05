@@ -1,0 +1,600 @@
+<head>
+<title>mPMT status page</title>
+</head>
+
+<!--#include virtual="/includes/header.html" -->
+<!--#include virtual="../subheader.html" -->
+<!--#include virtual="/includes/drawer.html" -->
+<script src='../js/mpmtcommon.js'></script>
+<style>
+
+input.bgreen {
+    background-color:rgb(0, 206, 3);
+}
+
+.mdl-textfield.is-upgraded .mdl-textfield__label {
+    top: 0px;
+    font-size: 12px;
+    color:rgb(63,81,181);
+}
+
+div.div_hidden {
+    visibility: hidden;
+}
+
+div.div_notshown {
+    display: none;
+}
+
+div.div_center {
+    margin: 0 auto;
+}
+
+.narrow {
+    width: 6em;
+}
+
+.narrow-field-13 {
+    width: 13em;
+}
+
+.narrow-field-10 {
+    width: 10em;
+}
+
+.error-text {
+    color: rgb(255,0,0);
+    font-size: large;
+}
+
+table.sqltable {
+  border: 1px solid #3F51B5;
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+}
+table.sqltable td, table.sqltable th {
+  border: 1px solid #AAAAAA;
+  padding: 3px 2px;
+}
+table.sqltable tbody td {
+  font-size: 14px;
+}
+
+table.sqltable thead {
+  background: #3F51B5;
+  border-bottom: 2px solid #444444;
+}
+table.sqltable thead th {
+  font-size: 15px;
+  font-weight: bold;
+  color: #FFFFFF;
+  border-left: 2px solid #D0E4F5;
+  white-space: nowrap; 
+}
+table.sqltable thead th:first-child {
+  border-left: none;
+}
+
+table.sqltable tfoot {
+  font-size: 14px;
+  font-weight: bold;
+  color: #FFFFFF;
+  background: #B6C1FF;
+  border-top: 2px solid #444444;
+}
+table.sqltable tfoot td {
+  font-size: 14px;
+}
+table.sqltable tfoot .links {
+  text-align: right;
+}
+table.sqltable tfoot .links a{
+  display: inline-block;
+  background: #3F51B5;
+  color: #FFFFFF;
+  padding: 2px 8px;
+  border-radius: 5px;
+}
+
+table.sqltable tbody td { 
+    white-space: nowrap; 
+}
+
+table.sqltable tbody td.wrap { 
+    white-space: normal;
+    word-break: break-all;
+}
+
+table.sqltable th:last-child { 
+    width: 100%; 
+}
+
+.severity-0 {
+    color: rgb(255,0,0);
+}
+.severity-1 {
+    color: rgb(147, 64, 0);
+}
+.severity-2 {
+    color: rgb(99, 114, 0);
+}
+.severity-3 {
+    color: rgb(15, 40, 0);
+}
+.severity-4 {
+    color: rgb(0, 0, 0);
+}
+
+</style>
+<h4>Query parameters</h4>
+<div class="mdl-grid form-row" id='control-row'>
+        <div class='mdl-cell mdl-cell--1-col mdl-textfield mdl-js-textfield mdl-textfield--floating-label' >
+            <select id='db_table' class="mdl-textfield__input native-control">
+                <option value="monitoring" selected>Monitoring</option>
+                <option value="logging">Logging</option>
+                <option value="device_config">Device configuration</option>
+                <option value="configurations">Configurations</option>
+                <option value="run_info">Run info</option>
+            </select>
+            <label class="mdl-textfield__label" for="db_table">Table</label>
+        </div>
+        
+        <div class='mdl-cell mdl-cell--1-col mdl-textfield mdl-js-textfield mdl-textfield--floating-label' >
+            <select id='sel_device' class="mdl-textfield__input native-control">
+                <option value="_" selected>Waiting....</option>
+            </select>
+            <label class="mdl-textfield__label" for="sel_device">Device</label>
+        </div>
+        
+        <div class='mdl-cell mdl-cell--1-col mdl-textfield mdl-js-textfield mdl-textfield--floating-label' >            
+            <select id='max_level' class="mdl-textfield__input native-control">
+                <option value="0">Critical (0)</option>
+                <option value="1">Error (1)</option>
+                <option value="2">Warning (2)</option>
+                <option value="3" selected>Info (3)</option>
+                <option value="4">Debug (4)</option>
+            </select>
+            <label class="mdl-textfield__label" for="max_level">Max. level</label>
+        </div>
+
+        <div class='mdl-cell mdl-cell--2-col'>
+            <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label is-focused is-dirty' >
+                <input type="datetime-local" id='date_start' class="mdl-textfield__input field-input" aria-labelledby="datetime-picker-1-label">
+                <label class="mdl-textfield__label" for="date_start">Start time</label>            
+            </div>
+            <input type="button" class="mdl-button mdl-js-button mdl-button--raised  field-input" aria-labelledby="datetime-picker-2-label" value='Clear' onclick='document.getElementById("date_start").value=""'>
+        </div>
+        
+        <div class='mdl-cell mdl-cell--2-col'>
+            <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label is-focused is-dirty' >
+                <input type="datetime-local" id='date_end' class="mdl-textfield__input field-input" aria-labelledby="datetime-picker-1-label">
+                <label class="mdl-textfield__label" for="date_start">End time</label>            
+            </div>
+            <input type="button" class="mdl-button mdl-js-button mdl-button--raised  field-input" aria-labelledby="datetime-picker-2-label" value='Clear' onclick='document.getElementById("date_end").value=""'>
+        </div>
+
+        <div class='mdl-cell mdl-cell--2-col'>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label narrow-field-13">
+                <label class="mdl-textfield__label  narrow-field-13" for="maxnumber">Maximum number of results</label>
+                <input type="number" id='maxnumber' class="mdl-textfield__input field-input narrow" aria-labelledby="numeric-input-label" value='1000' >
+            </div>
+            <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label narrow-field-10' >            
+                <select id='preset' class="mdl-textfield__input native-control narrow">
+                    <option value="10">10</option>
+                    <option value="100">100</option>
+                    <option value="1000" selected>1000</option>
+                    <option value="5000">5000</option>
+                    <option value="10000">10000</option>
+                </select>
+                <label class="mdl-textfield__label narrow-field-10" for="preset">Preset</label>
+            </div>
+        </div>
+                
+        <div class='mdl-cell mdl-cell--2-col'>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <label class="mdl-textfield__label" for="searchtext">Search for text/field name</label>
+                <input type="text" id='searchtext' class="mdl-textfield__input field-input" aria-labelledby="text-input-label">
+            </div>
+            <input type="button" class="mdl-button mdl-js-button mdl-button--raised field-input" aria-labelledby="datetime-picker-2-label" value='Clear' onclick='document.getElementById("searchtext").value=""'>
+        </div>
+
+        <div class='mdl-cell mdl-cell--1-col'>
+        
+        </div>
+
+        <div class='mdl-cell mdl-cell--2-col mdl-textfield mdl-js-textfield mdl-textfield--floating-label' >
+            <select id='run_name' class="mdl-textfield__input native-control">
+                <option value="_" selected>Waiting....</option>
+            </select>
+            <label class="mdl-textfield__label" for="run_name">Run config name</label>
+        </div>
+        <div class='mdl-cell mdl-cell--2-col'>
+            <div class='mdl-textfield mdl-js-textfield mdl-textfield--floating-label is-focused is-dirty' >
+                <input type="text" id='run_version_f' class="mdl-textfield__input field-input" aria-labelledby="datetime-picker-1-label">
+                <label class="mdl-textfield__label" for="run_version_f">Run config version</label>            
+            </div>
+            <input type="button" class="mdl-button mdl-js-button mdl-button--raised  field-input" aria-labelledby="datetime-picker-2-label" value='Clear' onclick='document.getElementById("run_version_f").value=""'>
+        </div>
+
+        <div class='mdl-cell mdl-cell--7-col'>
+            
+        </div>
+
+        <div class='mdl-cell mdl-cell--1-col'>
+            <input id='btn_execute' type="button" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored field-input" aria-labelledby="datetime-picker-2-label" value='Execute' onclick='doQuery()'>
+            </div>
+
+        <div class='mdl-cell mdl-cell--12-col'>
+            <div id="progress_query" class="mdl-progress mdl-js-progress mdl-progress__indeterminate div_hidden div_center"></div>
+        </div>
+    </div>
+    <div class="mdl-grid form-row" id='control-row'>
+        
+    </div>
+
+    <h4>Query results</h4>
+    <div id='result'>
+    
+    </div>
+    <div class="mdl-grid form-row" id='error-row'>
+        <div class='mdl-cell mdl-cell--12-col'>
+                <div style='text-align:center;' class='error-text' id='error-text'></div>
+        </div>
+    </div>
+
+<script>
+
+    function severity_to_text(severity) {
+        switch(severity) {
+            case 0: return 'Critical (0)';
+            case 1: return 'Error (1)';
+            case 2: return 'Warning (2)';
+            case 3: return 'Info (3)';
+            case 4: return 'Debug (4)';
+        }
+        return `Other (${severity})`;
+    }
+
+    function build_table(rootel,res,columns) {
+        t = document.createElement("table");
+        t.classList.add('sqltable')
+        th = document.createElement("thead");
+
+        // get first element to have colum names
+        ccnt = columns.length;
+        columns.forEach(element => {
+            el = document.createElement("th");
+            tx = document.createTextNode(element[0]);
+            if (element.length>2) {
+                el.width = element[2];
+            }
+            el.appendChild(tx);
+            th.appendChild(el);
+        });
+        
+        tb = document.createElement("tbody");
+
+        res.forEach(row => {
+            r = document.createElement("tr");
+            // first is always time, second device, rest .....
+            columns.forEach(element => {
+                da = document.createElement("td");
+                switch(element[1]) {
+                    case 'time': 
+                    case 'start_time':
+                    case 'stop_time':
+                    {
+                        if (row[element[1]] != null) {
+                            ttext = row[element[1]].substr(0,19).replace("T"," ");
+                        } else {
+                            ttext = "";
+                        }
+                        da.appendChild(document.createTextNode(ttext));
+                    }
+                    break;
+                    case 'device': 
+                    case 'version':
+                    case 'author':                                        
+                    case 'name':
+                    case 'config_id':
+                    case 'run':
+                    case 'subrun':
+                    {                        
+                        ttext = row[element[1]];
+                        da.appendChild(document.createTextNode(ttext));
+                    }
+                    break;
+                    case 'message':
+                    case 'description':
+                    case 'comments':
+                    {     
+                        da.classList.add('wrap');                   
+                        ttext = row[element[1]];
+                        da.appendChild(document.createTextNode(ttext));
+                    }
+                    break;                    
+                    case 'severity':
+                    {
+                        severity = parseInt(row[element[1]],10);
+                        ttext = severity_to_text(severity);
+                        sp = document.createElement("span");
+                        sp.classList.add(`severity-${severity}`);
+                        sp.appendChild(document.createTextNode(ttext));
+                        da.appendChild(sp);
+                    }
+                    break;
+                    case 'data': {
+                        da.classList.add('wrap');
+                        ttext = JSON.stringify(row['data']);
+                        da.appendChild(document.createTextNode(ttext));
+                    }                    
+                    break;
+                }            
+                r.appendChild(da);
+            });
+            tb.appendChild(r);
+        });
+
+        tf = document.createElement("tfoot");
+        tfr = document.createElement("tr");
+        for (c=0;c<ccnt;c++) {
+            col = document.createElement("td");
+            if (c==0) {
+                col.appendChild(document.createTextNode(`Rows: ${res.length}`));
+            }
+            tfr.appendChild(col);
+        };
+        tf.appendChild(tfr);
+
+        t.appendChild(th);
+        t.appendChild(tb);
+        t.appendChild(tf);
+        rootel.appendChild(t);
+    }
+
+
+    function error_info(text) {
+        document.getElementById("error-text").innerText = text;
+        document.getElementById("error-row").classList.remove('div_notshown');        
+    }
+
+    function clear_table() {
+        rootel = document.getElementById("result");
+        while(rootel.firstChild) rootel.removeChild(rootel.lastChild);
+    }
+
+    function addwherecond(where) {
+        if (where=="") {
+            where = " WHERE ";
+        } else {
+            where += " AND ";
+        }
+        return where;
+    }
+
+    function adddaterange(where,sdate,edate) {
+        if (sdate!="" || edate!="") {
+            where = addwherecond(where);
+            sdate = sdate.replace("T"," ");
+            edate = edate.replace("T"," ");
+            if (sdate!="" && edate=="") {
+                where += ` time > '${sdate}' `;
+            } else if (sdate=="" && edate!="") {
+                where += ` time < '${edate}' `;
+            } else {
+                where += ` time BETWEEN '${sdate}' AND '${edate}' `;
+            }
+        }
+        return where;
+    }
+
+
+    function addsearchtext(where,table,text) {
+        if (text!="") {
+            switch (table) {
+                case 'monitoring': {
+                    where = addwherecond(where);
+                    where += ` data->'${text}' is not null `;
+                }
+                break;
+                case 'logging': {
+                    where = addwherecond(where);
+                    where += ` message LIKE '%${text}%' `;
+                }
+                break;
+                case 'device_config': {
+                    where = addwherecond(where);
+                    where += ` description LIKE '%${text}%' `;
+                }
+                break;
+                case 'configurations': {
+                    where = addwherecond(where);
+                    where += ` description LIKE '%${text}%' `;
+                }
+                break;
+                case 'run_info': {
+                    where = addwherecond(where);
+                    where += ` comments LIKE '%${text}%' or description like '%${text}%' `;
+                }
+                break;
+            }
+        }
+        return where;
+    }
+
+    function genQueryAndColumns() {
+
+        table = document.getElementById("db_table").value; 
+        limit = parseInt(document.getElementById("maxnumber").value,10);
+        if (isNaN(limit)) {
+            return [undefined, undefined, "Max row number is not a number"];
+        }
+        // this method leads to SQL injection, but the DN interface is already broken
+        where = ""
+        device = document.getElementById("sel_device").value; 
+        if (device!="") {
+            where = addwherecond(where);
+            where += ` device='${device}' `;
+        }
+        severity = document.getElementById("max_level").value; 
+        sdate = document.getElementById("date_start").value; 
+        edate = document.getElementById("date_end").value;         
+        text = document.getElementById("searchtext").value; 
+        where = addsearchtext(where,table,text);
+        run_name = document.getElementById("run_name").value; 
+        run_version = document.getElementById("run_version_f").value; 
+
+        switch (table) {
+            case 'monitoring': {
+                where=adddaterange(where,sdate,edate);
+                query = `SELECT * FROM ${table} ${where} ORDER BY time DESC limit ${limit}`;
+                columns = [['Time','time'],['Device','device'],['Data','data']];
+            }
+            break;
+            case 'logging': {
+                where=adddaterange(where,sdate,edate);
+                where = addwherecond(where);
+                where += ` severity<=${severity} `;
+                query = `SELECT * FROM ${table} ${where} ORDER BY time DESC limit ${limit}`;
+                columns = [['Time','time'],['Device','device'],['Severity','severity'],['Message','message']];
+            }
+            break;
+            case 'device_config': {
+                where=adddaterange(where,sdate,edate);
+                query = `SELECT * FROM ${table} ${where} ORDER BY time DESC limit ${limit}`;
+                columns = [['Time','time'],['Device','device'],['Version','version'],
+                ['Author','author'],['Description','description','20%'],['Data','data','30%']];
+            }
+            break;
+            case 'configurations': {
+                where=adddaterange(where,sdate,edate);
+                if (run_name!="") {
+                    where = addwherecond(where);
+                    where += ` configurations.name='${run_name}' `;
+                }
+                if (run_version!="") {
+                    where = addwherecond(where);
+                    where += ` configurations.version=${run_version} `;
+                }
+                query = `SELECT * FROM ${table} ${where} ORDER BY config_id DESC limit ${limit}`;
+                columns = [['Config ID','config_id'],['Time','time'],['Name','name'],
+                ['Version','version'],['Description','description','30%'],['Author','author'],
+                ['Data','data','30%']];
+            }
+            break;
+            case 'run_info': {
+                if (run_name!="") {
+                    where = addwherecond(where);
+                    where += ` configurations.name='${run_name}' `;
+                }
+                if (run_version!="") {
+                    where = addwherecond(where);
+                    where += ` configurations.version=${run_version} `;
+                }
+                query = `SELECT run_info.*,run_info.stop_time,run_info.start_time,run_info.start_time as time,configurations.name,configurations.version,configurations.description FROM ${table} JOIN configurations ON (configurations.config_id=run_info.config_id) ${where} ORDER BY run DESC limit ${limit}`;
+                columns = [
+                    ['Run','run'],['Sub run','subrun'],['Start','start_time'],
+                    ['Stop','stop_time'],['Config id','config_id'],['Config name','name'],
+                    ['Config version','version'],['Comments','comments','30%'],['Config description','description','30%']];
+            }
+        }
+
+        return [query, columns, undefined];
+    }
+
+    async function doQuery() {
+        // first crosscheck some
+        
+        document.getElementById("error-row").classList.add('div_notshown');
+
+        q = genQueryAndColumns()
+        if (q[2]) {
+            error_info(q[2]);
+            return;
+        }
+
+        document.getElementById("progress_query").classList.remove('div_hidden');
+        document.getElementById("btn_execute").disabled=true;
+        
+        try {
+            ret = await getSQLJSON(q[0]);
+            // get first object  and build result table
+            clear_table();            
+            if (ret.length==0) {
+                error_info("No results for this query")
+            } else {
+                build_table(rootel,ret,q[1]);
+            }
+        } catch(error) {
+            console.log(error)
+            clear_table();
+            if (error.message.includes("JSON") && error.message.includes("unexpected end of data")) {                
+                error_info("No results for this query")
+            } else {                                
+                error_info("Query failed");
+            }
+        }
+
+        document.getElementById("progress_query").classList.add('div_hidden');
+        document.getElementById("btn_execute").disabled=false;
+    }
+
+    async function getDevices() {
+        return getSQLJSON("SELECT DISTINCT ON (device) device FROM (SELECT device FROM monitoring WHERE time >= NOW() - INTERVAL '1 days'  UNION ALL SELECT device FROM device_config) a ORDER BY device" )
+    }
+
+    async function getRunConfigNames() {
+        return getSQLJSON("SELECT DISTINCT ON (name) name FROM configurations ORDER BY name" )
+    }
+
+    function append_options(selector,field,data) {
+        rootel = document.getElementById(selector);
+        while(rootel.firstChild) rootel.removeChild(rootel.lastChild);
+        s = document.createElement("option");
+        s.value="";
+        s.selected = true;
+        s.appendChild(document.createTextNode("---any---"));
+        rootel.appendChild(s);
+        data.forEach((element) => {
+            s = document.createElement("option");
+            s.value=element[field];
+            s.appendChild(document.createTextNode(element[field]));
+            rootel.appendChild(s);
+        }) 
+    }
+
+    async function initialize() {
+
+        const now = new Date();
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        document.getElementById("date_start").value = startOfDay.toISOString().substring(0,11)+"00:00";
+    
+        devices = await getDevices();
+        confnames = await getRunConfigNames();
+        append_options("sel_device","device",devices);
+        append_options("run_name","name",confnames);
+        document.getElementById("maxnumber").value='1000';
+        document.getElementById("searchtext").value='';
+        
+    }
+
+    function enablerow(state) {
+        document.querySelectorAll("#control-row .field-input, #control-row .native-control").forEach(input => {
+            input.disabled = state;
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", async function () {
+        document.getElementById("preset").addEventListener('change', ()=> {
+            document.getElementById("maxnumber").value=document.getElementById("preset").value;
+        })
+        //enablerow(true);
+        document.getElementById("btn_execute").disabled=true;
+        await initialize();
+        document.getElementById("btn_execute").disabled=false;
+        //enablerow(false);
+    });
+</script>
+
+<!--#include virtual="/includes/footer.html" -->

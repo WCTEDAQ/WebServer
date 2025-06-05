@@ -1,0 +1,48 @@
+<0;58;40M<!DOCTYPE html>
+<html>
+	<head>
+	<title>ToolDAQ Webpage</title>
+	  
+	<!--#include virtual="/includes/header.html" -->
+	<!--#include virtual="subheader.html" -->
+	
+	<div id="montabbar" class="mdl-layout__tab-bar mdl-js-ripple-effect is-casting-shadow mdl-js-ripple-effect--ignore-events" data-upgraded=",MaterialRipple">  <!--class="mdl-layout__tab-bar mdl-js-ripple-effect" >-->
+	</div>
+	
+	<!-- ↓ this closes the head and opens the body ↓ -->
+	<!--#include virtual="/includes/drawer.html" -->
+	
+		<div align="center">
+		<br><br>
+		<label for="device_name">Device Name: </label>
+		<input id="device_name" style="background-color: white" class="form-control" value='GAD' >
+		<br><br>
+		<label for="autoUpdate">AutoUpdate: </label>
+		<input id="autoUpdate" type="checkbox" checked>
+		<label for="refreshRate">Refresh Rate [s]: </label>
+		<input id="refreshRate" type="number" style="background-color: white" class="form-control" value='60' >
+		<br><br>
+		<label for="historyLength">History Length:</label>
+		<input id="historyLength" type="number" style="background-color: white" class="form-control" value='200' >
+		<br><br>
+		
+		<div align="center" id="output"></div>
+		<div id="flow_rate"></div>
+		<br>
+		
+		</div>
+		
+		<br>
+		
+		<script src="https://cdn.plot.ly/plotly-2.3.0.min.js"></script>
+		<script type="module" src="/includes/functions.js"></script>
+		<script type="module" src="./makeplots.js" async></script>
+		
+	<!-- ↓ this closes the body -->
+	<!--#include virtual="/includes/footer.html" -->
+	
+	
+</html>
+
+
+

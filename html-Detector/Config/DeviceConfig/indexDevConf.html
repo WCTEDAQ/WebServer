@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ToolDAQ | Device Configurations</title>
+</head>
+
+<body>
+
+    <!-- Include common header and navigation -->
+    <!--#include virtual="/includes/header.html" -->
+    <!--#include virtual="../subheader.html" -->
+    <!--#include virtual="/includes/drawer.html" -->
+
+
+    <h1 align="center">New Device Configurations</h1>
+
+    <!-- Form to add a new device configuration -->
+    <form id="deviceConfigForm" method="post" enctype="multipart/form-data">
+        <label for="device">Device:</label>
+        <input type="text" id="device" name="device" size="40" style="margin: 10px;" required><br><br>
+
+        <label for="author">Author:</label>
+        <input type="text" id="author" name="author" size="40" style="margin: 10px;" required><br><br>
+
+        <label for="description">Description:</label><br>
+        <textarea id="description" name="description" style="resize:both; width:80%; margin:10px;" required></textarea><br><br>
+
+        <label for="data">Data (JSON format):</label><br>
+        <textarea id="data" name="data" style="resize:both; width:80%; margin:10px;" required></textarea><br><br>
+        
+        <label for="data">Data File (JSON format):</label><br>
+        <input type="file" id="file-input" name="filename">
+        
+        <script type="text/javascript">
+            const datainput = document.querySelector("#data");
+            datainput.addEventListener('input', autoResize, false);
+            
+            const descriptinput = document.querySelector("#description");
+            descriptinput.addEventListener('input', autoResize, false);
+            
+            function autoResize() {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            }
+        </script>
+
+        <button type="button" id="addDeviceConfigBtn" >Add Device Configuration</button>
+    </form>
+
+    <h2 align="center">Existing Device Configurations</h2>
+    <div id="deviceConfigOutput"></div>
+
+    <!-- Include common footer -->
+    <!--#include virtual="/includes/footer.html" -->
+
+    <script type="module" src="/includes/functions.js?v=1" async></script>
+    <script type="module" src="./deviceConfig.js?v=1" async></script>
+</body>
