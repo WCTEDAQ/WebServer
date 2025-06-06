@@ -15,27 +15,27 @@
 
 const mpmt_statuses = [
 {'cid':1, 'status': 2},{'cid':3, 'status': 2},{'cid':6, 'status': 2},{'cid':7, 'status': 2},
-{'cid':8, 'status': 2},{'cid':10, 'status': 2},{'cid':11, 'status': 2},
+{'cid':8, 'status': 2},{'cid':10, 'status': 6},{'cid':11, 'status': 2},
 {'cid':12, 'status': 2},{'cid':13, 'status': 1},{'cid':14, 'status': 2},{'cid':15, 'status': 2},
-{'cid':16, 'status': 2},{'cid':17, 'status': 2},{'cid':18, 'status': 2},{'cid':19, 'status': 2},
-{'cid':20, 'status': 2},{'cid':21, 'status': 2},{'cid':22, 'status': 2},{'cid':23, 'status': 2},
+{'cid':16, 'status': 2},{'cid':17, 'status': 6},{'cid':18, 'status': 2},{'cid':19, 'status': 2},
+{'cid':20, 'status': 2},{'cid':21, 'status': 2},{'cid':22, 'status': 6},{'cid':23, 'status': 6},
 {'cid':24, 'status': 2},{'cid':25, 'status': 2},{'cid':26, 'status': 2},{'cid':27, 'status': 2},
 {'cid':28, 'status': 2},{'cid':29, 'status': 2},{'cid':30, 'status': 2},{'cid':31, 'status': 2},
 {'cid':32, 'status': 2},{'cid':33, 'status': 2},{'cid':34, 'status': 2},{'cid':35, 'status': 2},
-{'cid':36, 'status': 2},{'cid':38, 'status': 2},{'cid':40, 'status': 2},
+{'cid':36, 'status': 6},{'cid':38, 'status': 2},{'cid':40, 'status': 2},
 {'cid':41, 'status': 2},{'cid':42, 'status': 2},{'cid':43, 'status': 2},{'cid':44, 'status': 2},
-{'cid':45, 'status': 2},{'cid':46, 'status': 2},{'cid':47, 'status': 2},{'cid':48, 'status': 2},
+{'cid':45, 'status': 6},{'cid':46, 'status': 2},{'cid':47, 'status': 2},{'cid':48, 'status': 4},
 {'cid':52, 'status': 2},{'cid':71, 'status': 2},{'cid':73, 'status': 2},
 {'cid':74, 'status': 2},{'cid':75, 'status': 2},{'cid':76, 'status': 2},{'cid':77, 'status': 2},
 {'cid':78, 'status': 2},{'cid':79, 'status': 2},{'cid':80, 'status': 2},{'cid':82, 'status': 2},
 {'cid':83, 'status': 2},{'cid':84, 'status': 2},{'cid':85, 'status': 2},{'cid':86, 'status': 2},
-{'cid':87, 'status': 2},{'cid':89, 'status': 2},{'cid':91, 'status': 2},{'cid':92, 'status': 2},
-{'cid':93, 'status': 2},{'cid':94, 'status': 2},{'cid':96, 'status': 2},
+{'cid':87, 'status': 2},{'cid':89, 'status': 6},{'cid':91, 'status': 2},{'cid':92, 'status': 2},
+{'cid':93, 'status': 2},{'cid':94, 'status': 6},{'cid':96, 'status': 2},
 {'cid':97, 'status': 2},{'cid':98, 'status': 2},{'cid':99, 'status': 2},{'cid':100, 'status': 2},
-{'cid':101, 'status': 2},{'cid':102, 'status': 2},{'cid':103, 'status': 2},{'cid':104, 'status': 2},
-{'cid':105, 'status': 2},{'cid':106, 'status': 2},{'cid':107, 'status': 2},{'cid':108, 'status': 2},
+{'cid':101, 'status': 2},{'cid':102, 'status': 2},{'cid':103, 'status': 6},{'cid':104, 'status': 2},
+{'cid':105, 'status': 2},{'cid':106, 'status': 6},{'cid':107, 'status': 2},{'cid':108, 'status': 2},
 {'cid':109, 'status': 2},{'cid':111, 'status': 2},{'cid':112, 'status': 2},{'cid':113, 'status': 2},
-{'cid':114, 'status': 2},{'cid':115, 'status': 2},{'cid':117, 'status': 2},{'cid':118, 'status': 2},
+{'cid':114, 'status': 2},{'cid':115, 'status': 2},{'cid':117, 'status': 2},{'cid':118, 'status': 6},
 {'cid':130, 'status': 2},{'cid':131, 'status': 2},{'cid':132, 'status': 2},
 
 {'cid': 2, 'status': 5},{'cid': 81, 'status': 5},{'cid': 110, 'status': 5},{'cid': 50, 'status': 5},
@@ -59,6 +59,7 @@ const legend = [
         {"n": "mPMT, OK", "c": id_and_status_to_colors("mPMT",2)},
         {"n": "mPMT, OK, but excluded", "c": id_and_status_to_colors("mPMT",1)},
         {"n": "mPMT, alive, clock problems", "c": id_and_status_to_colors("mPMT",4)},
+        {"n": "mPMT, alive, clock restored, bad ch", "c": id_and_status_to_colors("mPMT",6)},
         {"n": "mPMT, dead", "c": id_and_status_to_colors("mPMT",5)},
         {"n": "Far detector", "c": id_and_status_to_colors("FD",0)},
         {"n": "Empty slot", "c": id_and_status_to_colors("Empty",0)},
@@ -72,6 +73,7 @@ function id_and_status_to_colors(n,s) {
             case 3: return ['rgb(230, 74, 25)','rgba(230, 74, 25, 0.5)'];
             case 4: return ['rgb(238, 0, 7)','rgba(238, 0, 7, 0.5)'];
             case 5: return ['rgb(210, 89, 136)','rgba(210, 89, 136, 0.5)'];
+            case 6: return ['rgb(230, 74, 25)','rgba(230, 74, 25, 0.5)'];
             case 9: return ['rgb(252, 252, 3)','rgba(252, 252, 3, 0.5)'];
         }
         return ['rgb(2, 119, 189)','rgba(2, 119, 189, 0.5)'];
